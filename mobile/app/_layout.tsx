@@ -11,7 +11,7 @@ import SplashScreen from '@/components/SplashScreen';
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/Poppins-Regular.ttf'),
+    Poppins: require('@/assets/fonts/Poppins-Regular.ttf'),
   });
 
   // Show splash screen while fonts are loading OR while splash animation is playing
