@@ -1,9 +1,8 @@
 import { PropsWithChildren, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text, Surface, TouchableRipple } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -11,32 +10,45 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
   const [isOpen, setIsOpen] = useState(false);
   const theme = useColorScheme() ?? 'light';
 
-  return (
-    <ThemedView>
-      <TouchableOpacity
-        style={styles.heading}
-        onPress={() => setIsOpen((value) => !value)}
-        activeOpacity={0.8}>
-        <IconSymbol
-          name="chevron.right"
-          size={18}
-          weight="medium"
-          color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-          style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
-        />
+  const iconColor = Colors.textPrimary;
 
-        <ThemedText type="defaultSemiBold">{title}</ThemedText>
-      </TouchableOpacity>
-      {isOpen && <ThemedView style={styles.content}>{children}</ThemedView>}
-    </ThemedView>
+  return (
+    <Surface style={styles.container}>
+      <TouchableRipple onPress={() => setIsOpen((prev) => !prev)} rippleColor="rgba(0, 0, 0, .1)">
+        <View style={styles.heading}>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={20}
+            color={iconColor}
+            style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
+          />
+          <Text style={styles.title}>{title}</Text>
+        </View>
+      </TouchableRipple>
+
+      {isOpen && <View style={styles.content}>{children}</View>}
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+    backgroundColor: Colors.card,
+    borderRadius: 6,
+    padding: 8,
+    elevation: 2,
+  },
   heading: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingVertical: 6,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
   },
   content: {
     marginTop: 6,
