@@ -1,0 +1,33 @@
+# Badlit Mobile App Instructions
+
+## Run the App (Development)
+1. First time cloning: `npm install`
+2. Start development server: `npx expo start`
+3. Scan QR code with Expo Go app on Android or press 'a' for Android emulator
+4. Enjoy!
+
+## Build the App (Production APK)
+1. Install EAS CLI: `npm install -g eas-cli`
+2. Login to Expo: `eas login`
+   - Username: chaos23
+   - Password: Marco072801
+3. Check for issues: `npx expo doctor` (fix any errors)
+4. Build APK: `eas build --platform android`
+5. Download APK from EAS dashboard once build completes
+6. Install APK on Android device
+
+## Additional Commands
+- Check dependencies: `npx expo install --check`
+- Fix dependencies: `npx expo install --fix`
+- Build with message: `eas build --platform android --message "Version description"`
+- Build preview: `eas build --platform android --profile preview`
+
+## Requirements
+- Node.js installed
+- Android device with Expo Go app OR Android emulator
+- Expo account (chaos23)
+
+## Notes
+- APK builds take 10-15 minutes on EAS servers
+- APK can be installed directly on Android devices
+- Check EAS dashboard for build progress and download links
