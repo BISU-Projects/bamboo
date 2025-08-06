@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": " MyBamboo",
-    "slug": "Bamboo Mobile Image Recognition using CNN",
+    "slug": "MyBamboo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/bamboo-logo.png",
@@ -37,6 +37,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c1672c0c-6a85-4a98-9668-cb8d2036fb0f"
+      }
     }
   }
 }
