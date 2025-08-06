@@ -11,10 +11,11 @@
 2. Login to Expo: `eas login`
    - Username: chaos23
    - Password: Marco072801
-3. Check for issues: `npx expo doctor` (fix any errors)
-4. Build APK: `eas build --platform android`
-5. Download APK from EAS dashboard once build completes
-6. Install APK on Android device
+3. run `eas build:configure` (if eas.json is not found)
+4. Check for issues: `npx expo doctor` (fix any errors)
+5. Build APK: `eas build --platform android`
+6. Download APK from EAS dashboard once build completes
+7. Install APK on Android device
 
 ## Additional Commands
 - Check dependencies: `npx expo install --check`
