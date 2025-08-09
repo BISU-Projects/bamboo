@@ -19,7 +19,7 @@ interface UseApiReturn {
   clearResult: () => void;
 }
 
-const API_ENDPOINT = "https://f0f489672ca9.ngrok-free.app/predict";
+const API_ENDPOINT = "https://9f3c9440e2c6.ngrok-free.app/predict";
 
 export const useApi = (): UseApiReturn => {
   const [result, setResult] = useState<PredictionResult | null>(null);
