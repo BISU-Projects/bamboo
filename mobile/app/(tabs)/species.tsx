@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   StyleSheet, 
   FlatList, 
@@ -21,6 +21,7 @@ import Animated, {
   Layout,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
+import { sampleSpeciesData, BambooSpecies } from '@/data/species';
 
 const { width } = Dimensions.get('window');
 const itemWidth = (width - 48) / 2; // 2 columns with 16px margin and 16px gap
@@ -34,72 +35,16 @@ const getStatusBarHeight = () => {
   }
 };
 
-interface BambooSpecies {
-  id: string;
-  name: string;
-  scientificName: string;
-  image: string;
-  height: string;
-  category: 'Clumping' | 'Running' | 'Dwarf' | 'Timber';
-  rarity: 'Common' | 'Uncommon' | 'Rare';
-}
-
-const sampleSpeciesData: BambooSpecies[] = [
-  {
-    id: '1',
-    name: 'Giant Bamboo',
-    scientificName: 'Dendrocalamus giganteus',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '25-35m',
-    category: 'Timber',
-    rarity: 'Common',
-  },
-  {
-    id: '2',
-    name: 'Golden Bamboo',
-    scientificName: 'Phyllostachys aurea',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '6-10m',
-    category: 'Running',
-    rarity: 'Common',
-  },
-  {
-    id: '3',
-    name: 'Black Bamboo',
-    scientificName: 'Phyllostachys nigra',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '4-8m',
-    category: 'Running',
-    rarity: 'Uncommon',
-  },
-  {
-    id: '4',
-    name: 'Buddha Belly',
-    scientificName: 'Bambusa ventricosa',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '3-6m',
-    category: 'Clumping',
-    rarity: 'Uncommon',
-  },
-  {
-    id: '5',
-    name: 'Moso Bamboo',
-    scientificName: 'Phyllostachys edulis',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '15-25m',
-    category: 'Timber',
-    rarity: 'Common',
-  },
-];
-
 export default function SpeciesScreen() {
   const router = useRouter();
   const statusBarHeight = getStatusBarHeight();
 
   const handleSpeciesPress = (species: BambooSpecies) => {
     // Navigate to species detail screen
-    // router.push(`/species/${species.id}`);
-    console.log('Opening species:', species.name);
+    router.push({
+      pathname: '/species/detail',
+      params: { id: species.id }
+    });
   };
 
   const getRarityColor = (rarity: string) => {
@@ -108,6 +53,16 @@ export default function SpeciesScreen() {
       case 'Uncommon': return Colors.warning;
       case 'Rare': return Colors.error;
       default: return Colors.textSecondary;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Timber': return '#8B4513';
+      case 'Running': return '#228B22';
+      case 'Clumping': return '#4169E1';
+      case 'Dwarf': return '#FF8C00';
+      default: return Colors.primary;
     }
   };
 
@@ -149,9 +104,19 @@ export default function SpeciesScreen() {
                 <Text style={styles.infoIcon}>📏</Text>
                 <Text style={styles.infoText}>{item.height}</Text>
               </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoIcon}>🌍</Text>
+                <Text style={styles.infoText} numberOfLines={1}>{item.origin}</Text>
+              </View>
             </View>
 
-            <Text style={styles.categoryText}>{item.category}</Text>
+            <Text style={[styles.categoryText, { 
+              backgroundColor: getCategoryColor(item.category) + '20',
+              borderColor: getCategoryColor(item.category),
+              color: getCategoryColor(item.category)
+            }]}>
+              {item.category}
+            </Text>
           </View>
         </Surface>
       </TouchableOpacity>
@@ -187,10 +152,13 @@ export default function SpeciesScreen() {
           renderItem={renderSpeciesCard}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          columnWrapperStyle={styles.row}
+          columnWrapperStyle={sampleSpeciesData.length > 1 ? styles.row : null}
           ListHeaderComponent={renderHeader}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.listContent, { paddingTop: statusBarHeight + 16 }]}
+          contentContainerStyle={[
+            styles.listContent, 
+            { paddingTop: statusBarHeight + 16 }
+          ]}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </View>
@@ -219,7 +187,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: Colors.textSecondary,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   
   // Grid Styles
@@ -296,15 +264,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryText: {
-    color: Colors.primary,
     fontSize: 10,
     fontWeight: '600',
-    backgroundColor: Colors.primarySoft,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: Colors.primary,
+    overflow: 'hidden',
   },
 });
