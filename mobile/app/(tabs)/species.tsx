@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, View, TouchableOpacity, Dimensions } from 'react-native';
+import { 
+  StyleSheet, 
+  FlatList, 
+  View, 
+  TouchableOpacity, 
+  Dimensions,
+  Platform,
+  StatusBar as RNStatusBar,
+} from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import Animated, {
   useSharedValue,
@@ -15,6 +24,15 @@ import { Colors } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 const itemWidth = (width - 48) / 2; // 2 columns with 16px margin and 16px gap
+
+// Get status bar height
+const getStatusBarHeight = () => {
+  if (Platform.OS === 'ios') {
+    return 44; // Standard iOS status bar height
+  } else {
+    return RNStatusBar.currentHeight || 24; // Android status bar height
+  }
+};
 
 interface BambooSpecies {
   id: string;
@@ -72,19 +90,11 @@ const sampleSpeciesData: BambooSpecies[] = [
     category: 'Timber',
     rarity: 'Common',
   },
-  {
-    id: '6',
-    name: 'Fountain Bamboo',
-    scientificName: 'Fargesia nitida',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '2-4m',
-    category: 'Clumping',
-    rarity: 'Rare',
-  },
 ];
 
 export default function SpeciesScreen() {
   const router = useRouter();
+  const statusBarHeight = getStatusBarHeight();
 
   const handleSpeciesPress = (species: BambooSpecies) => {
     // Navigate to species detail screen
@@ -149,7 +159,7 @@ export default function SpeciesScreen() {
   );
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
+    <View style={[styles.headerContainer, { marginTop: statusBarHeight }]}>
       <Text variant="headlineMedium" style={styles.headerTitle}>
         Bamboo Species
       </Text>
@@ -160,19 +170,22 @@ export default function SpeciesScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={sampleSpeciesData}
-        renderItem={renderSpeciesCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        ListHeaderComponent={renderHeader}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-    </View>
+    <>
+      <StatusBar style="auto" translucent />
+      <View style={styles.container}>
+        <FlatList
+          data={sampleSpeciesData}
+          renderItem={renderSpeciesCard}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          ListHeaderComponent={renderHeader}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      </View>
+    </>
   );
 }
 
