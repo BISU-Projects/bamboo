@@ -16,6 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/Colors';
+import { useApi } from '@/hooks/useAPI'; // Import the custom hook
 
 const { width } = Dimensions.get('window');
 
@@ -28,18 +29,12 @@ const getStatusBarHeight = () => {
   }
 };
 
-interface PredictionResult {
-  class?: string;
-  confidence?: number;
-  error?: string;
-  [key: string]: any;
-}
-
 export default function Recognition() {
-  const [result, setResult] = useState<PredictionResult | null>(null);
-  const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const statusBarHeight = getStatusBarHeight();
+  
+  // Use the custom API hook
+  const { result, loading, error, sendToAPI, clearResult } = useApi();
 
   useEffect(() => {
     (async () => {
@@ -50,7 +45,6 @@ export default function Recognition() {
       if (cameraStatus !== "granted" || mediaStatus !== "granted") {
         Alert.alert("Permissions required", "We need camera and photo library access to work properly!");
       }
-      // Removed auto-opening camera - now user can choose
     })();
   }, []);
 
@@ -65,7 +59,7 @@ export default function Recognition() {
 
       if (!result.canceled && result.assets.length > 0) {
         setSelectedImage(result.assets[0].uri);
-        setResult(null);
+        clearResult();
         sendToAPI(result.assets[0].uri);
       }
     } catch (error) {
@@ -83,42 +77,8 @@ export default function Recognition() {
 
     if (!result.canceled && result.assets.length > 0) {
       setSelectedImage(result.assets[0].uri);
-      setResult(null);
+      clearResult();
       sendToAPI(result.assets[0].uri);
-    }
-  };
-
-  const sendToAPI = async (uri: string) => {
-    try {
-      setLoading(true);
-
-      const filename = uri.split("/").pop() || "image.jpg";
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1].toLowerCase()}` : "image";
-
-      const formData = new FormData();
-      // @ts-ignore
-      formData.append("file", { uri, name: filename, type });
-
-      const response = await fetch("https://f0f489672ca9.ngrok-free.app/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const json = await response.json();
-      setResult(json);
-    } catch (error) {
-      if (error instanceof Error) {
-        setResult({ error: error.message });
-      } else {
-        setResult({ error: String(error) });
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -199,7 +159,6 @@ export default function Recognition() {
 
   return (
     <>
-      {/* Fixed: Changed to light-content to show white text on dark background */}
       <StatusBar style="light" translucent />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         {/* Header Section with proper status bar spacing */}
@@ -289,6 +248,7 @@ export default function Recognition() {
   );
 }
 
+// Styles remain exactly the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,

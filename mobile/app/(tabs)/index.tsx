@@ -71,7 +71,16 @@ export default function HomeScreen() {
 
   return (
     <>
-      <StatusBar style="auto" translucent />
+      {/* Fixed Status Bar Configuration */}
+      <StatusBar style="light" />
+      {/* Additional native status bar configuration for Android */}
+      {Platform.OS === 'android' && (
+        <RNStatusBar
+          barStyle="light-content"
+          translucent={true}
+        />
+      )}
+      
       <ScrollView 
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -83,7 +92,10 @@ export default function HomeScreen() {
             colors={[Colors.primary, Colors.primaryDark]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={[styles.gradientHeader, { paddingTop: statusBarHeight + 40 }]}
+            style={[
+              styles.gradientHeader, 
+              { paddingTop: statusBarHeight + 40 }
+            ]}
           >
             <Animated.View style={[styles.logoContainer, fadeInStyle]}>
               <Animated.View style={bambooSwayStyle}>

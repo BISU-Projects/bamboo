@@ -171,8 +171,16 @@ export default function SpeciesScreen() {
 
   return (
     <>
-      {/* Fixed: Changed to dark to show dark text/icons on light background */}
-      <StatusBar style="dark" translucent />
+      {/* Fixed Status Bar Configuration */}
+      <StatusBar style="dark" />
+      {/* Additional native status bar configuration for Android */}
+      {Platform.OS === 'android' && (
+        <RNStatusBar
+          barStyle="dark-content"
+          translucent={true}
+        />
+      )}
+      
       <View style={styles.container}>
         <FlatList
           data={sampleSpeciesData}
