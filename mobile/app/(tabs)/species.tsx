@@ -159,7 +159,7 @@ export default function SpeciesScreen() {
   );
 
   const renderHeader = () => (
-    <View style={[styles.headerContainer, { marginTop: statusBarHeight }]}>
+    <View style={styles.headerContainer}>
       <Text variant="headlineMedium" style={styles.headerTitle}>
         Bamboo Species
       </Text>
@@ -171,7 +171,8 @@ export default function SpeciesScreen() {
 
   return (
     <>
-      <StatusBar style="auto" translucent />
+      {/* Fixed: Changed to dark to show dark text/icons on light background */}
+      <StatusBar style="dark" translucent />
       <View style={styles.container}>
         <FlatList
           data={sampleSpeciesData}
@@ -181,7 +182,7 @@ export default function SpeciesScreen() {
           columnWrapperStyle={styles.row}
           ListHeaderComponent={renderHeader}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingTop: statusBarHeight + 16 }]}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </View>

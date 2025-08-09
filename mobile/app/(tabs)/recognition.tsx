@@ -199,15 +199,16 @@ export default function Recognition() {
 
   return (
     <>
-      <StatusBar style="auto" translucent />
+      {/* Fixed: Changed to light-content to show white text on dark background */}
+      <StatusBar style="light" translucent />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* Header Section */}
-        <View style={[styles.header, { marginTop: statusBarHeight }]}>
+        {/* Header Section with proper status bar spacing */}
+        <View style={styles.header}>
           <LinearGradient
             colors={[Colors.primary, Colors.primaryDark]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.headerGradient}
+            style={[styles.headerGradient, { paddingTop: statusBarHeight + 20 }]}
           >
             <Text style={styles.headerIcon}>📷</Text>
             <Text style={styles.title}>Bamboo Scanner</Text>
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingBottom: 32,
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
