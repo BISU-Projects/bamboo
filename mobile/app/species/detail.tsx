@@ -84,19 +84,6 @@ export default function SpeciesDetailScreen() {
     };
   });
 
-  const titleAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [100, 200],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      opacity,
-    };
-  });
-
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case 'Common': return Colors.success;
@@ -124,31 +111,6 @@ export default function SpeciesDetailScreen() {
       )}
 
       <View style={styles.container}>
-        {/* Fixed Header with Back Button */}
-        <View style={[styles.fixedHeader, { paddingTop: statusBarHeight }]}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
-          </TouchableOpacity>
-          
-          <Animated.View style={[styles.headerTitle, titleAnimatedStyle]}>
-            <Text style={styles.headerTitleText} numberOfLines={1}>
-              {species.name}
-            </Text>
-          </Animated.View>
-
-          <TouchableOpacity
-            style={styles.shareButton}
-            onPress={() => console.log('Share species')}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons name="share-variant" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-
         <Animated.ScrollView
           style={styles.scrollView}
           onScroll={scrollHandler}
@@ -320,48 +282,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  
-  // Fixed Header
-  fixedHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    backgroundColor: 'transparent',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  shareButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitleText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
 
   // Scroll View
