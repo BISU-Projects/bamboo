@@ -1,146 +1,373 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-import { Text, Surface } from 'react-native-paper';
+import React, { useState, useEffect } from "react";
+import { 
+  View, 
+  TouchableOpacity, 
+  Text, 
+  ActivityIndicator, 
+  Alert, 
+  StyleSheet,
+  Image,
+  ScrollView,
+  Dimensions
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
+const { width } = Dimensions.get('window');
 
-export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: Colors.background, dark: Colors.primaryDark }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color={Colors.textSecondary}
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
+interface PredictionResult {
+  class?: string;
+  confidence?: number;
+  error?: string;
+  [key: string]: any;
+}
+
+export default function Recognition() {
+  const [result, setResult] = useState<PredictionResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission denied", "Sorry, we need camera roll permissions to make this work!");
       }
-    >
-      <Surface style={styles.titleContainer}>
-        <Text variant="headlineMedium" style={styles.titleText}>
-          Explore
-        </Text>
-      </Surface>
+    })();
+  }, []);
 
-      <Text style={styles.paragraph}>
-        This app includes example code to help you get started.
-      </Text>
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
 
-      <Collapsible title="File-based routing">
-        <Text style={styles.paragraph}>
-          This app has two screens: <Text style={styles.semiBold}>app/(tabs)/index.tsx</Text> and{' '}
-          <Text style={styles.semiBold}>app/(tabs)/explore.tsx</Text>
-        </Text>
-        <Text style={styles.paragraph}>
-          The layout file in <Text style={styles.semiBold}>app/(tabs)/_layout.tsx</Text> sets up the tab navigator.
-        </Text>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <Text style={styles.link}>Learn more</Text>
-        </ExternalLink>
-      </Collapsible>
+    if (!result.canceled && result.assets.length > 0) {
+      setSelectedImage(result.assets[0].uri);
+      setResult(null); // Clear previous results
+      sendToAPI(result.assets[0].uri);
+    }
+  };
 
-      <Collapsible title="Android, iOS, and web support">
-        <Text style={styles.paragraph}>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <Text style={styles.semiBold}>w</Text> in the terminal running this project.
-        </Text>
-      </Collapsible>
+  const sendToAPI = async (uri: string) => {
+    try {
+      setLoading(true);
 
-      <Collapsible title="Images">
-        <Text style={styles.paragraph}>
-          For static images, you can use the <Text style={styles.semiBold}>@2x</Text> and{' '}
-          <Text style={styles.semiBold}>@3x</Text> suffixes to provide files for different screen densities.
-        </Text>
-        <Image source={require('@/assets/images/react-logo.png')} style={styles.image} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <Text style={styles.link}>Learn more</Text>
-        </ExternalLink>
-      </Collapsible>
+      const filename = uri.split("/").pop() || "image.jpg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1].toLowerCase()}` : "image";
 
-      <Collapsible title="Custom fonts">
-        <Text style={styles.paragraph}>
-          Open <Text style={styles.semiBold}>app/_layout.tsx</Text> to see how to load{' '}
-          <Text style={styles.customFont}>custom fonts such as this one.</Text>
-        </Text>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <Text style={styles.link}>Learn more</Text>
-        </ExternalLink>
-      </Collapsible>
+      const formData = new FormData();
+      // @ts-ignore
+      formData.append("file", { uri, name: filename, type });
 
-      <Collapsible title="Light and dark mode components">
-        <Text style={styles.paragraph}>
-          This template has light and dark mode support. The{' '}
-          <Text style={styles.semiBold}>useColorScheme()</Text> hook lets you inspect what the user's current color
-          scheme is, and so you can adjust UI colors accordingly.
-        </Text>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <Text style={styles.link}>Learn more</Text>
-        </ExternalLink>
-      </Collapsible>
+      const response = await fetch("https://f0f489672ca9.ngrok-free.app/predict", {
+        method: "POST",
+        body: formData,
+      });
 
-      <Collapsible title="Animations">
-        <Text style={styles.paragraph}>
-          This template includes an example of an animated component. The{' '}
-          <Text style={styles.semiBold}>components/HelloWave.tsx</Text> component uses the powerful{' '}
-          <Text style={styles.semiBold}>react-native-reanimated</Text> library to create a waving hand animation.
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const json = await response.json();
+      setResult(json);
+    } catch (error) {
+      if (error instanceof Error) {
+        setResult({ error: error.message });
+      } else {
+        setResult({ error: String(error) });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderResult = () => {
+    if (!result) return null;
+
+    if (result.error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>❌ Error</Text>
+          <Text style={styles.errorMessage}>{result.error}</Text>
+        </View>
+      );
+    }
+
+    // Handle different possible result formats
+    const className = result.class || result.predicted_class || result.label || 'Unknown';
+    const confidence = result.confidence || result.probability || result.score;
+
+    return (
+      <View style={styles.resultContainer}>
+        <Text style={styles.resultTitle}>🎯 Recognition Result</Text>
+        
+        <View style={styles.predictionCard}>
+          <View style={styles.classSection}>
+            <Text style={styles.classLabel}>Class:</Text>
+            <Text style={styles.className}>{className}</Text>
+          </View>
+          
+          {confidence !== undefined && (
+            <View style={styles.confidenceSection}>
+              <Text style={styles.confidenceLabel}>Confidence:</Text>
+              <View style={styles.confidenceRow}>
+                <Text style={styles.confidenceText}>
+                  {(confidence * 100).toFixed(1)}%
+                </Text>
+                <View style={styles.confidenceBar}>
+                  <View 
+                    style={[
+                      styles.confidenceBarFill, 
+                      { width: `${confidence * 100}%` }
+                    ]} 
+                  />
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Show additional data if present */}
+        {Object.keys(result).some(key => !['class', 'confidence', 'predicted_class', 'probability', 'score', 'label'].includes(key)) && (
+          <View style={styles.additionalDataContainer}>
+            <Text style={styles.additionalDataTitle}>Additional Information:</Text>
+            {Object.entries(result).map(([key, value]) => {
+              if (['class', 'confidence', 'predicted_class', 'probability', 'score', 'label'].includes(key)) {
+                return null;
+              }
+              return (
+                <View key={key} style={styles.dataRow}>
+                  <Text style={styles.dataKey}>{key}:</Text>
+                  <Text style={styles.dataValue}>{String(value)}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.header}>
+        <Text style={styles.title}>🔍 Image Recognition</Text>
+        <Text style={styles.subtitle}>Upload an image to get AI predictions</Text>
+      </View>
+
+      {selectedImage && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+        </View>
+      )}
+
+      <TouchableOpacity 
+        style={[styles.button, loading && styles.buttonDisabled]} 
+        onPress={pickImage}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {selectedImage ? "📷 Choose Different Image" : "📁 Pick an Image"}
         </Text>
-        {Platform.select({
-          ios: (
-            <Text style={styles.paragraph}>
-              The <Text style={styles.semiBold}>components/ParallaxScrollView.tsx</Text> component provides a parallax
-              effect for the header image.
-            </Text>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </TouchableOpacity>
+
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Analyzing image...</Text>
+        </View>
+      )}
+
+      {renderResult()}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: Colors.textSecondary,
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
   },
-  titleContainer: {
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+    paddingTop: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1D1D1F',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6E6E73',
+    textAlign: 'center',
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  selectedImage: {
+    width: width - 40,
+    height: 250,
+    borderRadius: 16,
+    backgroundColor: '#E5E5EA',
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  buttonDisabled: {
+    backgroundColor: '#C7C7CC',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    padding: 30,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#6E6E73',
+  },
+  resultContainer: {
+    marginTop: 20,
+  },
+  resultTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1D1D1F',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  predictionCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  classSection: {
+    marginBottom: 16,
+  },
+  classLabel: {
+    fontSize: 14,
+    color: '#6E6E73',
+    marginBottom: 4,
+  },
+  className: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1D1D1F',
+    textTransform: 'capitalize',
+  },
+  confidenceSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    paddingTop: 16,
+  },
+  confidenceLabel: {
+    fontSize: 14,
+    color: '#6E6E73',
+    marginBottom: 8,
+  },
+  confidenceRow: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+  },
+  confidenceText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#34C759',
+    marginRight: 12,
+    minWidth: 70,
+  },
+  confidenceBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#E5E5EA',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  confidenceBarFill: {
+    height: '100%',
+    backgroundColor: '#34C759',
+    borderRadius: 4,
+  },
+  additionalDataContainer: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  additionalDataTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1D1D1F',
     marginBottom: 12,
   },
-  titleText: {
-    color: Colors.primaryDark,
+  dataRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
   },
-  paragraph: {
-    color: Colors.textPrimary,
-    marginBottom: 10,
+  dataKey: {
+    fontSize: 14,
+    color: '#6E6E73',
+    flex: 1,
+    textTransform: 'capitalize',
+  },
+  dataValue: {
+    fontSize: 14,
+    color: '#1D1D1F',
+    flex: 2,
+    textAlign: 'right',
+  },
+  errorContainer: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 20,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 8,
+  },
+  errorMessage: {
     fontSize: 16,
+    color: 'white',
     lineHeight: 22,
-  },
-  semiBold: {
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  customFont: {
-    fontFamily: 'SpaceMono',
-    color: Colors.textPrimary,
-  },
-  link: {
-    color: Colors.primary,
-    textDecorationLine: 'underline',
-    marginTop: 8,
-  },
-  image: {
-    alignSelf: 'center',
-    height: 100,
-    width: 100,
-    resizeMode: 'contain',
-    marginVertical: 10,
   },
 });
