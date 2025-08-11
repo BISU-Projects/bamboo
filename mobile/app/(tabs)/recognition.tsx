@@ -88,7 +88,7 @@ export default function Recognition() {
     if (result.error) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorIcon}>❌</Text>
+          {/* <Text style={styles.errorIcon}>❌</Text> */}
           <Text style={styles.errorTitle}>Recognition Failed</Text>
           <Text style={styles.errorMessage}>{result.error}</Text>
         </View>
@@ -101,7 +101,7 @@ export default function Recognition() {
     return (
       <View style={styles.resultContainer}>
         <View style={styles.resultHeader}>
-          <Text style={styles.resultIcon}>🎯</Text>
+          {/* <Text style={styles.resultIcon}>🎯</Text> */}
           <Text style={styles.resultTitle}>Recognition Result</Text>
         </View>
         
@@ -169,7 +169,7 @@ export default function Recognition() {
             end={{ x: 1, y: 1 }}
             style={[styles.headerGradient, { paddingTop: statusBarHeight + 20 }]}
           >
-            <Text style={styles.headerIcon}>📷</Text>
+            {/* <Text style={styles.headerIcon}>📷</Text> */}
             <Text style={styles.title}>Bamboo Scanner</Text>
             <Text style={styles.subtitle}>AI-powered species identification</Text>
           </LinearGradient>
@@ -188,7 +188,7 @@ export default function Recognition() {
               end={{ x: 1, y: 0 }}
               style={styles.buttonGradient}
             >
-              <Text style={styles.buttonIcon}>📸</Text>
+              {/* <Text style={styles.buttonIcon}>📸</Text> */}
               <Text style={styles.primaryButtonText}>Take Photo</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -198,7 +198,7 @@ export default function Recognition() {
             onPress={pickImageFromGallery}
             disabled={loading}
           >
-            <Text style={styles.buttonIcon}>🖼️</Text>
+            {/* <Text style={styles.buttonIcon}>🖼️</Text> */}
             <Text style={styles.secondaryButtonText}>Choose from Gallery</Text>
           </TouchableOpacity>
         </View>
