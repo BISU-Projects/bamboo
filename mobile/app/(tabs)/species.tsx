@@ -1,46 +1,58 @@
-import React from 'react';
-import { 
-  StyleSheet, 
-  FlatList, 
-  View, 
-  TouchableOpacity, 
+import React, { useState, useMemo } from 'react';
+import {
+  StyleSheet,
+  FlatList,
+  View,
+  TouchableOpacity,
   Dimensions,
   Platform,
   StatusBar as RNStatusBar,
+  TextInput,
+  ScrollView
 } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  FadeIn,
-  Layout,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
 import { sampleSpeciesData, BambooSpecies } from '@/data/species';
 
 const { width } = Dimensions.get('window');
-const itemWidth = (width - 48) / 2; // 2 columns with 16px margin and 16px gap
+const itemWidth = (width - 48) / 2;
 
-// Get status bar height
 const getStatusBarHeight = () => {
-  if (Platform.OS === 'ios') {
-    return 44; // Standard iOS status bar height
-  } else {
-    return RNStatusBar.currentHeight || 24; // Android status bar height
-  }
+  if (Platform.OS === 'ios') return 44;
+  return RNStatusBar.currentHeight || 24;
 };
 
 export default function SpeciesScreen() {
   const router = useRouter();
   const statusBarHeight = getStatusBarHeight();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRarity, setSelectedRarity] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const rarityOptions = ['Common', 'Uncommon', 'Rare'];
+  const categoryOptions = ['Timber', 'Running', 'Clumping', 'Dwarf'];
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery && !selectedRarity && !selectedCategory) {
+      return sampleSpeciesData;
+    }
+    const lowerQuery = searchQuery.toLowerCase();
+    return sampleSpeciesData.filter(species => {
+      const matchesSearch =
+        species.name.toLowerCase().includes(lowerQuery) ||
+        species.scientificName.toLowerCase().includes(lowerQuery);
+      const matchesRarity = !selectedRarity || species.rarity === selectedRarity;
+      const matchesCategory = !selectedCategory || species.category === selectedCategory;
+      return matchesSearch && matchesRarity && matchesCategory;
+    });
+  }, [searchQuery, selectedRarity, selectedCategory]);
+
   const handleSpeciesPress = (species: BambooSpecies) => {
-    // Navigate to species detail screen
     router.push({
       pathname: '/species/detail',
       params: { id: species.id }
@@ -68,18 +80,15 @@ export default function SpeciesScreen() {
 
   const renderSpeciesCard = ({ item, index }: { item: BambooSpecies; index: number }) => (
     <Animated.View
-      entering={FadeIn.delay(index * 100)}
+      entering={FadeIn.delay(index * 50)}
       layout={Layout.springify()}
       style={styles.cardContainer}
     >
-      <TouchableOpacity
-        onPress={() => handleSpeciesPress(item)}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity onPress={() => handleSpeciesPress(item)} activeOpacity={0.8}>
         <Surface style={styles.speciesCard} elevation={2}>
           <View style={styles.imageContainer}>
             <Image
-              source={require('@/assets/images/bamboo-logo.png')}
+              source={item.image}
               style={styles.speciesImage}
               contentFit="cover"
               transition={300}
@@ -90,7 +99,6 @@ export default function SpeciesScreen() {
               </Text>
             </View>
           </View>
-          
           <View style={styles.cardContent}>
             <Text variant="titleSmall" style={styles.speciesName} numberOfLines={1}>
               {item.name}
@@ -98,7 +106,6 @@ export default function SpeciesScreen() {
             <Text variant="bodySmall" style={styles.scientificName} numberOfLines={1}>
               {item.scientificName}
             </Text>
-            
             <View style={styles.speciesInfo}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoIcon}>📏</Text>
@@ -109,12 +116,14 @@ export default function SpeciesScreen() {
                 <Text style={styles.infoText} numberOfLines={1}>{item.origin}</Text>
               </View>
             </View>
-
-            <Text style={[styles.categoryText, { 
-              backgroundColor: getCategoryColor(item.category) + '20',
-              borderColor: getCategoryColor(item.category),
-              color: getCategoryColor(item.category)
-            }]}>
+            <Text style={[
+              styles.categoryText,
+              {
+                backgroundColor: getCategoryColor(item.category) + '20',
+                borderColor: getCategoryColor(item.category),
+                color: getCategoryColor(item.category)
+              }
+            ]}>
               {item.category}
             </Text>
           </View>
@@ -123,42 +132,86 @@ export default function SpeciesScreen() {
     </Animated.View>
   );
 
-  const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      <Text variant="headlineMedium" style={styles.headerTitle}>
-        Bamboo Species
-      </Text>
-      <Text variant="bodyMedium" style={styles.headerSubtitle}>
-        Explore {sampleSpeciesData.length} species in our database
-      </Text>
-    </View>
-  );
-
   return (
     <>
-      {/* Fixed Status Bar Configuration */}
       <StatusBar style="dark" />
-      {/* Additional native status bar configuration for Android */}
       {Platform.OS === 'android' && (
-        <RNStatusBar
-          barStyle="dark-content"
-          translucent={true}
-        />
+        <RNStatusBar barStyle="dark-content" translucent={true} />
       )}
-      
+
       <View style={styles.container}>
+        {/* Modern sticky top section */}
+        <View style={[styles.topSection, { paddingTop: statusBarHeight + 8 }]}>
+          <Text style={styles.headerTitle}>Bamboo Species</Text>
+          <Text style={styles.headerSubtitle}>
+            Showing {filteredData.length} of {sampleSpeciesData.length} species
+          </Text>
+
+          <TextInput
+            placeholder="Search species..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+            placeholderTextColor={Colors.textSecondary}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={{ paddingRight: 8 }}
+          >
+            {rarityOptions.map(r => (
+              <TouchableOpacity
+                key={r}
+                style={[
+                  styles.filterChip,
+                  selectedRarity === r && styles.filterChipSelected
+                ]}
+                onPress={() => setSelectedRarity(selectedRarity === r ? null : r)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    selectedRarity === r && styles.filterChipTextSelected
+                  ]}
+                >
+                  {r}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {categoryOptions.map(c => (
+              <TouchableOpacity
+                key={c}
+                style={[
+                  styles.filterChip,
+                  selectedCategory === c && styles.filterChipSelected
+                ]}
+                onPress={() => setSelectedCategory(selectedCategory === c ? null : c)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    selectedCategory === c && styles.filterChipTextSelected
+                  ]}
+                >
+                  {c}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         <FlatList
-          data={sampleSpeciesData}
+          data={filteredData}
           renderItem={renderSpeciesCard}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          columnWrapperStyle={sampleSpeciesData.length > 1 ? styles.row : null}
-          ListHeaderComponent={renderHeader}
+          columnWrapperStyle={filteredData.length > 1 ? styles.row : null}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.listContent, 
-            { paddingTop: statusBarHeight + 16 }
-          ]}
+          contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </View>
@@ -171,37 +224,82 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  listContent: {
-    paddingBottom: 32,
-  },
-  
-  // Header Styles
-  headerContainer: {
-    padding: 16,
-    paddingBottom: 24,
+  topSection: {
+    backgroundColor: Colors.background,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     color: Colors.textPrimary,
     fontWeight: '700',
+    fontSize: 22,
     marginBottom: 4,
   },
   headerSubtitle: {
     color: Colors.textSecondary,
-    marginBottom: 20,
+    marginBottom: 12,
   },
-  
-  // Grid Styles
+  searchInput: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 8,
+    fontSize: 14,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 10,
+  },
+  filterScroll: {
+    flexGrow: 0,
+  },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginRight: 8,
+    backgroundColor: Colors.surface,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      }
+    })
+  },
+  filterChipSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+  },
+  filterChipTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  listContent: {
+    paddingBottom: 32,
+    paddingHorizontal: 16,
+  },
   row: {
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
   },
   separator: {
     height: 16,
   },
-  
-  // Card Styles
   cardContainer: {
     width: itemWidth,
+    marginBottom: 16,
   },
   speciesCard: {
     backgroundColor: Colors.surface,
@@ -229,8 +327,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  
-  // Card Content
   cardContent: {
     padding: 12,
   },

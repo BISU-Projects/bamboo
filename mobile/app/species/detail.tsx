@@ -122,16 +122,30 @@ export default function SpeciesDetailScreen() {
           <View style={styles.imageContainer}>
             <Animated.View style={[styles.imageWrapper, headerAnimatedStyle]}>
               <Image
-                source={require('@/assets/images/bamboo-logo.png')}
+                source={species.image} // Changed from hardcoded to dynamic image
                 style={styles.heroImage}
                 contentFit="cover"
                 transition={500}
+                // Add placeholder and error handling
+                placeholder={require('@/assets/images/bamboo-logo.png')}
+                placeholderContentFit="cover"
+                onError={(error) => {
+                  console.log('Image loading error:', error);
+                }}
               />
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.7)']}
                 style={styles.imageOverlay}
               />
             </Animated.View>
+            
+            {/* Back Button */}
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
+            </TouchableOpacity>
             
             {/* Image Content */}
             <Animated.View style={[styles.imageContent, headerAnimatedStyle]}>
@@ -155,7 +169,7 @@ export default function SpeciesDetailScreen() {
               <Text style={styles.speciesName}>{species.name}</Text>
               <Text style={styles.scientificName}>{species.scientificName}</Text>
               
-              <View style={styles.quickStats}>
+              {/* <View style={styles.quickStats}>
                 <View style={styles.statItem}>
                   <MaterialCommunityIcons name="ruler" size={20} color="rgba(255,255,255,0.8)" />
                   <Text style={styles.statText}>{species.height}</Text>
@@ -164,7 +178,7 @@ export default function SpeciesDetailScreen() {
                   <MaterialCommunityIcons name="map-marker" size={20} color="rgba(255,255,255,0.8)" />
                   <Text style={styles.statText}>{species.origin}</Text>
                 </View>
-              </View>
+              </View> */}
             </Animated.View>
           </View>
 
@@ -311,6 +325,21 @@ const styles = StyleSheet.create({
     right: 0,
     height: '60%',
   },
+  
+  // Back Button
+  backButton: {
+    position: 'absolute',
+    top: getStatusBarHeight() + 10,
+    left: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  
   imageContent: {
     position: 'absolute',
     bottom: 0,
