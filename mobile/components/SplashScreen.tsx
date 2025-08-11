@@ -126,7 +126,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
         </View>
         
         <Animated.Text style={[styles.loadingText, textAnimatedStyle]}>
-          MyBamboo Image Recognition
+          BambooScope Image Recognition
         </Animated.Text>
         
         <Animated.Text style={[styles.subText, textAnimatedStyle]}>

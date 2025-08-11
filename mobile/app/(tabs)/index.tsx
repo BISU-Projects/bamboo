@@ -11,6 +11,7 @@ import { Text, Surface, Chip } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,18 +21,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
 
-// Get status bar height
-const getStatusBarHeight = () => {
-  if (Platform.OS === 'ios') {
-    return 44; // Standard iOS status bar height
-  } else {
-    return RNStatusBar.currentHeight || 24; // Android status bar height
-  }
-};
-
 export default function HomeScreen() {
   const router = useRouter();
-  const statusBarHeight = getStatusBarHeight();
+  const insets = useSafeAreaInsets();
   const sway = useSharedValue(0);
   const fadeIn = useSharedValue(0);
 
@@ -60,26 +52,17 @@ export default function HomeScreen() {
   });
 
   const handleScanBamboo = () => {
-    // Navigate to Camera tab
     router.push('/(tabs)/recognition');
   };
 
   const handleExploreSpecies = () => {
-    // Navigate to Species tab
    router.push('/(tabs)/species');
   };
 
   return (
     <>
-      {/* Fixed Status Bar Configuration */}
-      <StatusBar style="light" />
-      {/* Additional native status bar configuration for Android */}
-      {Platform.OS === 'android' && (
-        <RNStatusBar
-          barStyle="light-content"
-          translucent={true}
-        />
-      )}
+      {/* Status Bar Configuration */}
+      <StatusBar style="light" translucent={true} />
       
       <ScrollView 
         style={styles.container}
@@ -94,14 +77,14 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={[
               styles.gradientHeader, 
-              { paddingTop: statusBarHeight + 40 }
+              { paddingTop: insets.top + 40 }
             ]}
           >
             <Animated.View style={[styles.logoContainer, fadeInStyle]}>
               <Animated.View style={bambooSwayStyle}>
                 <Text style={styles.bambooIcon}>🎋</Text>
               </Animated.View>
-              <Text style={styles.appName}>BamboScope</Text>
+              <Text style={styles.appName}>BambooScope</Text>
               <Text style={styles.tagline}>AI-Powered Bamboo Recognition</Text>
               <Chip 
                 mode="outlined" 
@@ -117,7 +100,7 @@ export default function HomeScreen() {
         {/* Stats Overview */}
         <Animated.View style={[styles.statsContainer, fadeInStyle]}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>500+</Text>
+            <Text style={styles.statNumber}>5</Text>
             <Text style={styles.statLabel}>Species</Text>
           </View>
           <View style={styles.statDivider} />
@@ -127,7 +110,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>10K+</Text>
+            <Text style={styles.statNumber}>1K+</Text>
             <Text style={styles.statLabel}>Scans</Text>
           </View>
         </Animated.View>
@@ -187,7 +170,7 @@ export default function HomeScreen() {
                     Explore Database
                   </Text>
                   <Text variant="bodySmall" style={styles.actionDescription}>
-                    Browse 500+ bamboo species
+                    Browse 5 bamboo species
                   </Text>
                 </View>
                 <View style={styles.actionArrow}>
@@ -201,7 +184,7 @@ export default function HomeScreen() {
         {/* Feature Grid */}
         <Animated.View style={[styles.featuresContainer, fadeInStyle]}>
           <Text variant="titleMedium" style={styles.sectionTitle}>
-            Why BamboScope?
+            Why BambooScope?
           </Text>
           
           <View style={styles.featureGrid}>
