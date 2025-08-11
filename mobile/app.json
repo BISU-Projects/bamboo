@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": " MyBamboo",
-    "slug": "MyBamboo",
+    "name": " BambooScope",
+    "slug": "BambooScope",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/bamboo-logo.png",

@@ -34,8 +34,8 @@ export default function SpeciesScreen() {
   const [selectedRarity, setSelectedRarity] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const rarityOptions = ['Common', 'Uncommon', 'Rare'];
-  const categoryOptions = ['Timber', 'Running', 'Clumping', 'Dwarf'];
+  const rarityOptions = ['Common', 'Uncommon'];
+  const categoryOptions = ['Clumping'];
 
   const filteredData = useMemo(() => {
     if (!searchQuery && !selectedRarity && !selectedCategory) {
@@ -63,17 +63,13 @@ export default function SpeciesScreen() {
     switch (rarity) {
       case 'Common': return Colors.success;
       case 'Uncommon': return Colors.warning;
-      case 'Rare': return Colors.error;
       default: return Colors.textSecondary;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Timber': return '#8B4513';
-      case 'Running': return '#228B22';
       case 'Clumping': return '#4169E1';
-      case 'Dwarf': return '#FF8C00';
       default: return Colors.primary;
     }
   };
