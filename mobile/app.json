@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": " BambooScope",
-    "slug": "BambooScope",
+    "slug": "MyBamboo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/bamboo-logo.png",
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/bamboo-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "come.chaos23.bambooscope"
     },
     "web": {
       "bundler": "metro",
@@ -43,6 +44,7 @@
       "eas": {
         "projectId": "c1672c0c-6a85-4a98-9668-cb8d2036fb0f"
       }
-    }
+    },
+    "owner": "chaos23"
   }
 }
