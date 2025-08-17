@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { 
   StyleSheet, 
   ScrollView, 
@@ -7,11 +7,12 @@ import {
   Dimensions,
   Platform,
   StatusBar as RNStatusBar,
+  FlatList,
 } from 'react-native';
 import { Text, Surface, Chip, Divider } from 'react-native-paper';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, {
@@ -19,18 +20,23 @@ import Animated, {
   useAnimatedStyle,
   useAnimatedScrollHandler,
   withSpring,
+  withTiming,
   interpolate,
   Extrapolation,
   FadeIn,
   SlideInUp,
+  runOnJS,
 } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
-// Import from centralized data source
 import { getSpeciesById, BambooSpecies } from '@/data/species';
 
 const { width, height } = Dimensions.get('window');
 const HEADER_HEIGHT = 300;
 const CONTENT_OVERLAP = 40;
+const GALLERY_ITEM_WIDTH = 80;
+const GALLERY_ITEM_HEIGHT = 80;
+const EXPANDED_ITEM_WIDTH = width - 48;
+const EXPANDED_ITEM_HEIGHT = 200;
 
 // Get status bar height
 const getStatusBarHeight = () => {
@@ -40,6 +46,212 @@ const getStatusBarHeight = () => {
     return RNStatusBar.currentHeight || 24;
   }
 };
+
+// Expandable Carousel Gallery Component
+const ExpandableCarouselGallery = ({ 
+  images, 
+  onImagePress 
+}: { 
+  images: string[]; 
+  onImagePress: (index: number) => void; 
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const scrollX = useSharedValue(0);
+  const expandAnimation = useSharedValue(0);
+
+  const toggleExpanded = () => {
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
+    
+    expandAnimation.value = withSpring(newExpandedState ? 1 : 0, {
+      damping: 15,
+      stiffness: 150,
+    });
+  };
+
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const containerHeight = interpolate(
+      expandAnimation.value,
+      [0, 1],
+      [GALLERY_ITEM_HEIGHT + 40, EXPANDED_ITEM_HEIGHT + 80],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      height: containerHeight,
+    };
+  });
+
+  const animatedItemStyle = useAnimatedStyle(() => {
+    const itemWidth = interpolate(
+      expandAnimation.value,
+      [0, 1],
+      [GALLERY_ITEM_WIDTH, EXPANDED_ITEM_WIDTH],
+      Extrapolation.CLAMP
+    );
+    
+    const itemHeight = interpolate(
+      expandAnimation.value,
+      [0, 1],
+      [GALLERY_ITEM_HEIGHT, EXPANDED_ITEM_HEIGHT],
+      Extrapolation.CLAMP
+    );
+
+    const borderRadius = interpolate(
+      expandAnimation.value,
+      [0, 1],
+      [12, 16],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      width: itemWidth,
+      height: itemHeight,
+      borderRadius,
+    };
+  });
+
+  const animatedTextStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      expandAnimation.value,
+      [0, 0.5, 1],
+      [0, 0, 1],
+      Extrapolation.CLAMP
+    );
+
+    const translateY = interpolate(
+      expandAnimation.value,
+      [0, 1],
+      [20, 0],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  });
+
+  const renderCarouselItem = ({ item, index }: { item: string; index: number }) => (
+    <TouchableOpacity
+      key={index}
+      onPress={() => {
+        if (isExpanded) {
+          onImagePress(index);
+        } else {
+          setActiveIndex(index);
+          flatListRef.current?.scrollToIndex({ index, animated: true });
+        }
+      }}
+      activeOpacity={0.9}
+    >
+      <Animated.View style={[styles.carouselItem, animatedItemStyle]}>
+        <Image
+          source={item}
+          style={styles.carouselImage}
+          contentFit="cover"
+          transition={300}
+        />
+        {isExpanded && (
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.6)']}
+            style={styles.carouselOverlay}
+          >
+            <Animated.View style={[styles.imageInfo, animatedTextStyle]}>
+              <Text style={styles.imageCounter}>
+                {index + 1} of {images.length}
+              </Text>
+              <TouchableOpacity
+                style={styles.fullscreenButton}
+                onPress={() => onImagePress(index)}
+              >
+                <MaterialCommunityIcons name="image-outline" size={20} color="white" />
+              </TouchableOpacity>
+            </Animated.View>
+          </LinearGradient>
+        )}
+      </Animated.View>
+    </TouchableOpacity>
+  );
+
+  const onViewableItemsChanged = ({ viewableItems }: any) => {
+    if (viewableItems.length > 0 && isExpanded) {
+      setActiveIndex(viewableItems[0].index || 0);
+    }
+  };
+
+  return (
+    <Animated.View style={[styles.galleryContainer, animatedContainerStyle]}>
+      <View style={styles.galleryHeader}>
+        <Text style={styles.galleryTitle}>Image Gallery</Text>
+        <TouchableOpacity
+          style={styles.expandButton}
+          onPress={toggleExpanded}
+          activeOpacity={0.7}
+        >
+          <MaterialCommunityIcons 
+            name={isExpanded ? "chevron-up" : "chevron-down"} 
+            size={24} 
+            color={Colors.primary}
+          />
+          <Text style={styles.expandButtonText}>
+            {isExpanded ? "Collapse" : "Expand"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.carouselWrapper}>
+        <FlatList
+          ref={flatListRef}
+          data={images}
+          renderItem={renderCarouselItem}
+          keyExtractor={(_, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled={isExpanded}
+          snapToInterval={isExpanded ? EXPANDED_ITEM_WIDTH + 16 : undefined}
+          decelerationRate={isExpanded ? "fast" : "normal"}
+          contentContainerStyle={[
+            styles.carouselContent,
+            isExpanded && styles.expandedCarouselContent
+          ]}
+          ItemSeparatorComponent={() => <View style={{ width: isExpanded ? 16 : 12 }} />}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+          getItemLayout={(_, index) => ({
+            length: isExpanded ? EXPANDED_ITEM_WIDTH + 16 : GALLERY_ITEM_WIDTH + 12,
+            offset: (isExpanded ? EXPANDED_ITEM_WIDTH + 16 : GALLERY_ITEM_WIDTH + 12) * index,
+            index,
+          })}
+        />
+      </View>
+
+      {isExpanded && (
+        <Animated.View style={[styles.indicatorContainer, animatedTextStyle]}>
+          <View style={styles.indicators}>
+            {images.map((_, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.indicator,
+                  activeIndex === index && styles.indicatorActive
+                ]}
+                onPress={() => {
+                  setActiveIndex(index);
+                  flatListRef.current?.scrollToIndex({ index, animated: true });
+                }}
+              />
+            ))}
+          </View>
+        </Animated.View>
+      )}
+    </Animated.View>
+  );
+};
+
+
 
 export default function SpeciesDetailScreen() {
   const router = useRouter();
@@ -84,6 +296,11 @@ export default function SpeciesDetailScreen() {
     };
   });
 
+  const handleGalleryImagePress = (index: number) => {
+    // Optional: Add any navigation or action you want when images are pressed
+    console.log('Image pressed:', index);
+  };
+
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case 'Common': return Colors.success;
@@ -105,6 +322,13 @@ export default function SpeciesDetailScreen() {
 
   return (
     <>
+      {/* Hide the header using Stack.Screen options */}
+      <Stack.Screen 
+        options={{ 
+          headerShown: false 
+        }} 
+      />
+      
       <StatusBar style="light" />
       {Platform.OS === 'android' && (
         <RNStatusBar barStyle="light-content" translucent={true} />
@@ -122,11 +346,10 @@ export default function SpeciesDetailScreen() {
           <View style={styles.imageContainer}>
             <Animated.View style={[styles.imageWrapper, headerAnimatedStyle]}>
               <Image
-                source={species.image} // Changed from hardcoded to dynamic image
+                source={species.image}
                 style={styles.heroImage}
                 contentFit="cover"
                 transition={500}
-                // Add placeholder and error handling
                 placeholder={require('@/assets/images/bamboo-logo.png')}
                 placeholderContentFit="cover"
                 onError={(error) => {
@@ -168,17 +391,6 @@ export default function SpeciesDetailScreen() {
               
               <Text style={styles.speciesName}>{species.name}</Text>
               <Text style={styles.scientificName}>{species.scientificName}</Text>
-              
-              {/* <View style={styles.quickStats}>
-                <View style={styles.statItem}>
-                  <MaterialCommunityIcons name="ruler" size={20} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.statText}>{species.height}</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <MaterialCommunityIcons name="map-marker" size={20} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.statText}>{species.origin}</Text>
-                </View>
-              </View> */}
             </Animated.View>
           </View>
 
@@ -192,6 +404,16 @@ export default function SpeciesDetailScreen() {
               <Animated.View entering={FadeIn.delay(300)} style={styles.section}>
                 <Text style={styles.sectionTitle}>About</Text>
                 <Text style={styles.description}>{species.description}</Text>
+              </Animated.View>
+
+              <Divider style={styles.divider} />
+
+              {/* Expandable Carousel Gallery Section */}
+              <Animated.View entering={FadeIn.delay(350)} style={styles.section}>
+                <ExpandableCarouselGallery
+                  images={species.gallery}
+                  onImagePress={handleGalleryImagePress}
+                />
               </Animated.View>
 
               <Divider style={styles.divider} />
@@ -386,23 +608,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
-  quickStats: {
-    flexDirection: 'row',
-    gap: 24,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statText: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 14,
-    fontWeight: '500',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
 
   // Content Container
   contentContainer: {
@@ -438,6 +643,115 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 24,
     backgroundColor: Colors.border,
+  },
+
+  // Expandable Carousel Gallery Styles
+  galleryContainer: {
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  galleryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  galleryTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  expandButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.primarySoft,
+    borderRadius: 20,
+  },
+  expandButtonText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  carouselWrapper: {
+    flex: 1,
+  },
+  carouselContent: {
+    paddingRight: 12,
+  },
+  expandedCarouselContent: {
+    paddingRight: 24,
+  },
+  carouselItem: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: Colors.backgroundSecondary,
+    position: 'relative',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  carouselImage: {
+    width: '100%',
+    height: '100%',
+  },
+  carouselOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    justifyContent: 'flex-end',
+    padding: 12,
+  },
+  imageInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  imageCounter: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  fullscreenButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  indicatorContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  indicators: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.border,
+  },
+  indicatorActive: {
+    backgroundColor: Colors.primary,
+    width: 24,
   },
 
   // Growing Conditions

@@ -3,7 +3,8 @@ export interface BambooSpecies {
   id: string;
   name: string;
   scientificName: string;
-  image: string;
+  image: string; // Main hero image
+  gallery: string[]; // Array of gallery images (5 images)
   height: string;
   category: 'Clumping' | 'Running' | 'Dwarf' | 'Timber';
   rarity: 'Common' | 'Uncommon' | 'Rare';
@@ -26,6 +27,13 @@ export const sampleSpeciesData: BambooSpecies[] = [
     name: 'Bayog Bamboo',
     scientificName: 'Bambusa merrilliana',
     image: require('@/assets/images/bayog.jpg'), 
+    gallery: [
+      require('@/assets/images/bayog.jpg'),
+      require('@/assets/images/bayog1.jpg'),
+      require('@/assets/images/bayog2.jpg'),
+      require('@/assets/images/bayog3.jpg'),
+      require('@/assets/images/bayog4.jpg')
+    ],
     height: 'up to 20 m',
     category: 'Clumping',
     rarity: 'Common',
@@ -46,7 +54,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
     characteristics: [
       'Clumping growth habit',
       'Culms up to 20 m tall, 8–12 cm diameter',
-      'Thick-walled and strong; thin hollow core (“timber” bamboo)',
+      'Thick-walled and strong; thin hollow core ("timber" bamboo)',
       'Dense nodes, aerial roots at lower nodes',
       'Flexible but durable, tolerates typhoons well'
     ],
@@ -58,7 +66,14 @@ export const sampleSpeciesData: BambooSpecies[] = [
     id: '2',
     name: 'Bolo Bamboo',
     scientificName: 'Gigantochloa levis',
-   image: require('@/assets/images/bolo.jpg'),
+    image: require('@/assets/images/bolo.jpg'),
+    gallery: [
+      require('@/assets/images/bolo.jpg'),
+      require('@/assets/images/bolo1.jpg'),
+      require('@/assets/images/bolo2.jpg'),
+      require('@/assets/images/bolo3.jpg'),
+      require('@/assets/images/bolo4.jpg')
+    ],
     height: '10–12 m',
     category: 'Clumping',
     rarity: 'Common',
@@ -87,11 +102,18 @@ export const sampleSpeciesData: BambooSpecies[] = [
     bloomingPeriod: 'Flowering cycle unknown—likely long or gregarious like most bamboos',
     propagation: 'Culm cuttings and rhizome cuttings (commonly used)'
   },
-    {
+  {
     id: '3',
     name: 'Golden Buho Bamboo',
     scientificName: 'Schizostachyum brachycladum',
-   image: require('@/assets/images/golden_buho.jpg'),
+    image: require('@/assets/images/golden_buho.jpg'),
+    gallery: [
+      require('@/assets/images/golden_buho.jpg'),
+      require('@/assets/images/gb1.jpg'),
+      require('@/assets/images/gb2.jpg'),
+      require('@/assets/images/gb3.jpg'),
+      require('@/assets/images/gb4.jpg')
+    ],
     height: 'up to ~12 m',
     category: 'Clumping',
     rarity: 'Uncommon',
@@ -100,12 +122,12 @@ export const sampleSpeciesData: BambooSpecies[] = [
     sunlight: 'Full Sun to Partial Shade',
     water: 'Moderate; ornamental use near ponds, gardens',
     temperature: 'Tropical to Subtropical climates',
-    description: 'Golden Buho is a clumping bamboo recognized for its decorative yellow-green culms with green stripes. It’s commonly used ornamentally as a border in water features, koi ponds, and Japanese-style gardens.',
+    description: 'Golden Buho is a clumping bamboo recognized for its decorative yellow-green culms with green stripes. It\'s commonly used ornamentally as a border in water features, koi ponds, and Japanese-style gardens.',
     uses: [
       'Ornamental landscaping (pond borders, aesthetic plantings)',
       'Garden hedging/screening',
       'Fencing',
-      'Edible shoots (young culms)',
+      'Edible shoots (young culms)'
     ],
     characteristics: [
       'Clumping (sympodial) growth habit',
@@ -115,13 +137,20 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Plant in fertile, well-drained soil with regular moisture. Thrives under full sun to partial shade. Being clumping, it is manageable and stays neat—ideal for ornamental borders.',
     bloomingPeriod: 'Not documented; flowering cycles typically long and infrequent.',
-    propagation: 'Division when clump reaches ~10 culms, splitting into ~5-culm offsets for transplanting.' 
+    propagation: 'Division when clump reaches ~10 culms, splitting into ~5-culm offsets for transplanting.'
   },
   {
     id: '4',
     name: 'Iron Bamboo',
     scientificName: 'Guadua angustifolia',
-    image: require('@/assets/images/iron_bamboo.jpg'), // adjust as needed for your project
+    image: require('@/assets/images/iron_bamboo.jpg'),
+    gallery: [
+      require('@/assets/images/iron_bamboo.jpg'),
+      require('@/assets/images/ib1.jpg'),
+      require('@/assets/images/ib2.jpg'),
+      require('@/assets/images/ib3.jpg'),
+      require('@/assets/images/ib4.jpg')
+    ],
     height: 'up to ~30 m',
     category: 'Running',
     rarity: 'Uncommon',
@@ -130,7 +159,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
     sunlight: 'Full Sun to Partial Shade',
     water: 'Moderate to High (thrives in humid, tropical environments)',
     temperature: 'Tropical climates',
-    description: 'Iron Bamboo (*Guadua angustifolia*) is one of the largest and strongest bamboo species, often compared in strength to steel—valued for heavy-duty construction, engineered bamboo products, and structural applications.',
+    description: 'Iron Bamboo (Guadua angustifolia) is one of the largest and strongest bamboo species, often compared in strength to steel—valued for heavy-duty construction, engineered bamboo products, and structural applications.',
     uses: [
       'Heavy-duty construction (lumber, beams)',
       'Engineered bamboo (laminated beams, panels)',
@@ -152,7 +181,14 @@ export const sampleSpeciesData: BambooSpecies[] = [
     id: '5',
     name: 'Kawayan Tinik Bamboo',
     scientificName: 'Bambusa blumeana',
-    image: require('@/assets/images/kawayan_tinik.jpg'), 
+    image: require('@/assets/images/kawayan_tinik.jpg'),
+    gallery: [
+      require('@/assets/images/kawayan_tinik.jpg'),
+      require('@/assets/images/kt1.jpg'),
+      require('@/assets/images/kt2.jpg'),
+      require('@/assets/images/kt3.jpg'),
+      require('@/assets/images/kt4.jpg')
+    ],
     height: '15–25 m',
     category: 'Clumping',
     rarity: 'Common',
@@ -208,4 +244,81 @@ export const searchSpecies = (query: string): BambooSpecies[] => {
     species.category.toLowerCase().includes(lowercaseQuery) ||
     species.origin.toLowerCase().includes(lowercaseQuery)
   );
+};
+
+// Helper function to get all unique categories
+export const getAllCategories = (): string[] => {
+  const categories = sampleSpeciesData.map(species => species.category);
+  return [...new Set(categories)].sort();
+};
+
+// Helper function to get all unique rarities
+export const getAllRarities = (): string[] => {
+  const rarities = sampleSpeciesData.map(species => species.rarity);
+  return [...new Set(rarities)].sort();
+};
+
+// Helper function to get all unique origins
+export const getAllOrigins = (): string[] => {
+  const origins = sampleSpeciesData.map(species => species.origin);
+  return [...new Set(origins)].sort();
+};
+
+// Helper function to get species count by category
+export const getSpeciesCountByCategory = () => {
+  const counts: { [key: string]: number } = {};
+  sampleSpeciesData.forEach(species => {
+    counts[species.category] = (counts[species.category] || 0) + 1;
+  });
+  return counts;
+};
+
+// Helper function to get species count by rarity
+export const getSpeciesCountByRarity = () => {
+  const counts: { [key: string]: number } = {};
+  sampleSpeciesData.forEach(species => {
+    counts[species.rarity] = (counts[species.rarity] || 0) + 1;
+  });
+  return counts;
+};
+
+// Helper function to get random species (for featured/recommended sections)
+export const getRandomSpecies = (count: number = 3): BambooSpecies[] => {
+  const shuffled = [...sampleSpeciesData].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+// Helper function to get species by multiple filters
+export const getFilteredSpecies = (filters: {
+  category?: string;
+  rarity?: string;
+  origin?: string;
+  searchQuery?: string;
+}): BambooSpecies[] => {
+  let filtered = [...sampleSpeciesData];
+
+  if (filters.category) {
+    filtered = filtered.filter(species => species.category === filters.category);
+  }
+
+  if (filters.rarity) {
+    filtered = filtered.filter(species => species.rarity === filters.rarity);
+  }
+
+  if (filters.origin) {
+    filtered = filtered.filter(species => species.origin === filters.origin);
+  }
+
+  if (filters.searchQuery) {
+    const query = filters.searchQuery.toLowerCase();
+    filtered = filtered.filter(species => 
+      species.name.toLowerCase().includes(query) ||
+      species.scientificName.toLowerCase().includes(query) ||
+      species.description.toLowerCase().includes(query) ||
+      species.uses.some(use => use.toLowerCase().includes(query)) ||
+      species.characteristics.some(char => char.toLowerCase().includes(query))
+    );
+  }
+
+  return filtered;
 };
