@@ -1,8 +1,17 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, ScrollView, View, TouchableOpacity } from 'react-native';
+import { 
+  StyleSheet, 
+  ScrollView, 
+  View, 
+  TouchableOpacity,
+  Platform,
+  StatusBar as RNStatusBar,
+} from 'react-native';
 import { Text, Surface, Chip } from 'react-native-paper';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +23,7 @@ import { Colors } from '@/constants/Colors';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const sway = useSharedValue(0);
   const fadeIn = useSharedValue(0);
 
@@ -42,190 +52,196 @@ export default function HomeScreen() {
   });
 
   const handleScanBamboo = () => {
-    // Navigate to Camera tab
     router.push('/(tabs)/recognition');
   };
 
   const handleExploreSpecies = () => {
-    // Navigate to Species tab
    router.push('/(tabs)/species');
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      {/* Hero Header with Gradient */}
-      <View style={styles.heroContainer}>
-        <LinearGradient
-          colors={[Colors.primary, Colors.primaryDark]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientHeader}
-        >
-          <Animated.View style={[styles.logoContainer, fadeInStyle]}>
-            <Animated.View style={bambooSwayStyle}>
-              <Text style={styles.bambooIcon}>🎋</Text>
+    <>
+      {/* Status Bar Configuration */}
+      <StatusBar style="light" translucent={true} />
+      
+      <ScrollView 
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Hero Header with Gradient */}
+        <View style={styles.heroContainer}>
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryDark]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[
+              styles.gradientHeader, 
+              { paddingTop: insets.top + 40 }
+            ]}
+          >
+            <Animated.View style={[styles.logoContainer, fadeInStyle]}>
+              <Animated.View style={bambooSwayStyle}>
+                <Text style={styles.bambooIcon}>🎋</Text>
+              </Animated.View>
+              <Text style={styles.appName}>BambooScope</Text>
+              <Text style={styles.tagline}>AI-Powered Bamboo Recognition</Text>
+              <Chip 
+                mode="outlined" 
+                style={styles.versionChip}
+                textStyle={styles.versionText}
+              >
+                v1.0 Beta
+              </Chip>
             </Animated.View>
-            <Text style={styles.appName}>BamboScope</Text>
-            <Text style={styles.tagline}>AI-Powered Bamboo Recognition</Text>
-            <Chip 
-              mode="outlined" 
-              style={styles.versionChip}
-              textStyle={styles.versionText}
-            >
-              v1.0 Beta
-            </Chip>
-          </Animated.View>
-        </LinearGradient>
-      </View>
+          </LinearGradient>
+        </View>
 
-      {/* Stats Overview */}
-      <Animated.View style={[styles.statsContainer, fadeInStyle]}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>500+</Text>
-          <Text style={styles.statLabel}>Species</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>95%</Text>
-          <Text style={styles.statLabel}>Accuracy</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>10K+</Text>
-          <Text style={styles.statLabel}>Scans</Text>
-        </View>
-      </Animated.View>
+        {/* Stats Overview */}
+        <Animated.View style={[styles.statsContainer, fadeInStyle]}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>5</Text>
+            <Text style={styles.statLabel}>Species</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>95%</Text>
+            <Text style={styles.statLabel}>Accuracy</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>1K+</Text>
+            <Text style={styles.statLabel}>Scans</Text>
+          </View>
+        </Animated.View>
 
-      {/* Welcome Message */}
-      <Animated.View style={fadeInStyle}>
-        <Surface style={styles.welcomeContainer} elevation={0}>
-          <Text variant="headlineSmall" style={styles.welcomeTitle}>
-            Discover Bamboo Species
+        {/* Welcome Message */}
+        <Animated.View style={fadeInStyle}>
+          <Surface style={styles.welcomeContainer} elevation={0}>
+            <Text variant="headlineSmall" style={styles.welcomeTitle}>
+              Discover Bamboo Species
+            </Text>
+            <Text variant="bodyMedium" style={styles.welcomeText}>
+              Point your camera at any bamboo plant for instant AI-powered species identification with detailed botanical information.
+            </Text>
+          </Surface>
+        </Animated.View>
+
+        {/* Quick Actions with Modern Cards */}
+        <Animated.View style={[styles.quickActionsContainer, fadeInStyle]}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Get Started
           </Text>
-          <Text variant="bodyMedium" style={styles.welcomeText}>
-            Point your camera at any bamboo plant for instant AI-powered species identification with detailed botanical information.
+          
+          <TouchableOpacity onPress={handleScanBamboo} activeOpacity={0.8}>
+            <Surface style={styles.primaryActionCard} elevation={2}>
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryLight]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.cardGradient}
+              >
+                <View style={styles.actionIcon}>
+                  <Text style={styles.primaryActionEmoji}>📸</Text>
+                </View>
+                <View style={styles.actionTextContainer}>
+                  <Text variant="titleMedium" style={styles.primaryActionTitle}>
+                    Scan Bamboo
+                  </Text>
+                  <Text variant="bodySmall" style={styles.primaryActionDescription}>
+                    Instant AI recognition • High accuracy
+                  </Text>
+                </View>
+                <View style={styles.actionArrow}>
+                  <Text style={styles.arrowIcon}>→</Text>
+                </View>
+              </LinearGradient>
+            </Surface>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleExploreSpecies} activeOpacity={0.8}>
+            <Surface style={styles.secondaryActionCard} elevation={1}>
+              <View style={styles.actionContent}>
+                <View style={styles.secondaryActionIcon}>
+                  <Text style={styles.actionEmoji}>🌿</Text>
+                </View>
+                <View style={styles.actionTextContainer}>
+                  <Text variant="titleMedium" style={styles.actionTitle}>
+                    Explore Database
+                  </Text>
+                  <Text variant="bodySmall" style={styles.actionDescription}>
+                    Browse 5 bamboo species
+                  </Text>
+                </View>
+                <View style={styles.actionArrow}>
+                  <Text style={styles.secondaryArrowIcon}>→</Text>
+                </View>
+              </View>
+            </Surface>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Feature Grid */}
+        <Animated.View style={[styles.featuresContainer, fadeInStyle]}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Why BambooScope?
           </Text>
-        </Surface>
-      </Animated.View>
-
-      {/* Quick Actions with Modern Cards */}
-      <Animated.View style={[styles.quickActionsContainer, fadeInStyle]}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          Get Started
-        </Text>
-        
-        <TouchableOpacity onPress={handleScanBamboo} activeOpacity={0.8}>
-          <Surface style={styles.primaryActionCard} elevation={2}>
-            <LinearGradient
-              colors={[Colors.primary, Colors.primaryLight]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.cardGradient}
-            >
-              <View style={styles.actionIcon}>
-                <Text style={styles.primaryActionEmoji}>📸</Text>
+          
+          <View style={styles.featureGrid}>
+            <Surface style={styles.featureCard} elevation={1}>
+              <View style={styles.featureIconContainer}>
+                <Text style={styles.featureIcon}>🤖</Text>
               </View>
-              <View style={styles.actionTextContainer}>
-                <Text variant="titleMedium" style={styles.primaryActionTitle}>
-                  Scan Bamboo
-                </Text>
-                <Text variant="bodySmall" style={styles.primaryActionDescription}>
-                  Instant AI recognition • High accuracy
-                </Text>
+              <Text variant="titleSmall" style={styles.featureTitle}>
+                AI-Powered
+              </Text>
+              <Text variant="bodySmall" style={styles.featureDescription}>
+                Advanced deep learning for precise identification
+              </Text>
+            </Surface>
+
+            <Surface style={styles.featureCard} elevation={1}>
+              <View style={styles.featureIconContainer}>
+                <Text style={styles.featureIcon}>⚡</Text>
               </View>
-              <View style={styles.actionArrow}>
-                <Text style={styles.arrowIcon}>→</Text>
+              <Text variant="titleSmall" style={styles.featureTitle}>
+                Instant Results
+              </Text>
+              <Text variant="bodySmall" style={styles.featureDescription}>
+                Get species info in under 3 seconds
+              </Text>
+            </Surface>
+
+            <Surface style={styles.featureCard} elevation={1}>
+              <View style={styles.featureIconContainer}>
+                <Text style={styles.featureIcon}>📚</Text>
               </View>
-            </LinearGradient>
-          </Surface>
-        </TouchableOpacity>
+              <Text variant="titleSmall" style={styles.featureTitle}>
+                Rich Database
+              </Text>
+              <Text variant="bodySmall" style={styles.featureDescription}>
+                Comprehensive botanical information
+              </Text>
+            </Surface>
 
-        <TouchableOpacity onPress={handleExploreSpecies} activeOpacity={0.8}>
-          <Surface style={styles.secondaryActionCard} elevation={1}>
-            <View style={styles.actionContent}>
-              <View style={styles.secondaryActionIcon}>
-                <Text style={styles.actionEmoji}>🌿</Text>
+            <Surface style={styles.featureCard} elevation={1}>
+              <View style={styles.featureIconContainer}>
+                <Text style={styles.featureIcon}>🌍</Text>
               </View>
-              <View style={styles.actionTextContainer}>
-                <Text variant="titleMedium" style={styles.actionTitle}>
-                  Explore Database
-                </Text>
-                <Text variant="bodySmall" style={styles.actionDescription}>
-                  Browse 500+ bamboo species
-                </Text>
-              </View>
-              <View style={styles.actionArrow}>
-                <Text style={styles.secondaryArrowIcon}>→</Text>
-              </View>
-            </View>
-          </Surface>
-        </TouchableOpacity>
-      </Animated.View>
+              <Text variant="titleSmall" style={styles.featureTitle}>
+                Global Coverage
+              </Text>
+              <Text variant="bodySmall" style={styles.featureDescription}>
+                Species from around the world
+              </Text>
+            </Surface>
+          </View>
+        </Animated.View>
 
-      {/* Feature Grid */}
-      <Animated.View style={[styles.featuresContainer, fadeInStyle]}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          Why BamboScope?
-        </Text>
-        
-        <View style={styles.featureGrid}>
-          <Surface style={styles.featureCard} elevation={1}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>🤖</Text>
-            </View>
-            <Text variant="titleSmall" style={styles.featureTitle}>
-              AI-Powered
-            </Text>
-            <Text variant="bodySmall" style={styles.featureDescription}>
-              Advanced deep learning for precise identification
-            </Text>
-          </Surface>
-
-          <Surface style={styles.featureCard} elevation={1}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>⚡</Text>
-            </View>
-            <Text variant="titleSmall" style={styles.featureTitle}>
-              Instant Results
-            </Text>
-            <Text variant="bodySmall" style={styles.featureDescription}>
-              Get species info in under 3 seconds
-            </Text>
-          </Surface>
-
-          <Surface style={styles.featureCard} elevation={1}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>📚</Text>
-            </View>
-            <Text variant="titleSmall" style={styles.featureTitle}>
-              Rich Database
-            </Text>
-            <Text variant="bodySmall" style={styles.featureDescription}>
-              Comprehensive botanical information
-            </Text>
-          </Surface>
-
-          <Surface style={styles.featureCard} elevation={1}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>🌍</Text>
-            </View>
-            <Text variant="titleSmall" style={styles.featureTitle}>
-              Global Coverage
-            </Text>
-            <Text variant="bodySmall" style={styles.featureDescription}>
-              Species from around the world
-            </Text>
-          </Surface>
-        </View>
-      </Animated.View>
-
-      {/* Bottom Spacing */}
-      <View style={styles.bottomSpacing} />
-    </ScrollView>
+        {/* Bottom Spacing */}
+        <View style={styles.bottomSpacing} />
+      </ScrollView>
+    </>
   );
 }
 
@@ -244,7 +260,6 @@ const styles = StyleSheet.create({
     height: 240,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 40,
   },
   logoContainer: {
     alignItems: 'center',

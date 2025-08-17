@@ -1,120 +1,90 @@
-import React, { useState } from 'react';
-import { StyleSheet, FlatList, View, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+  StyleSheet,
+  FlatList,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+  StatusBar as RNStatusBar,
+  TextInput,
+  ScrollView
+} from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withDelay,
-  FadeIn,
-  Layout,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, Layout } from 'react-native-reanimated';
 import { Colors } from '@/constants/Colors';
+import { sampleSpeciesData, BambooSpecies } from '@/data/species';
 
 const { width } = Dimensions.get('window');
-const itemWidth = (width - 48) / 2; // 2 columns with 16px margin and 16px gap
+const itemWidth = (width - 48) / 2;
 
-interface BambooSpecies {
-  id: string;
-  name: string;
-  scientificName: string;
-  image: string;
-  height: string;
-  category: 'Clumping' | 'Running' | 'Dwarf' | 'Timber';
-  rarity: 'Common' | 'Uncommon' | 'Rare';
-}
-
-const sampleSpeciesData: BambooSpecies[] = [
-  {
-    id: '1',
-    name: 'Giant Bamboo',
-    scientificName: 'Dendrocalamus giganteus',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '25-35m',
-    category: 'Timber',
-    rarity: 'Common',
-  },
-  {
-    id: '2',
-    name: 'Golden Bamboo',
-    scientificName: 'Phyllostachys aurea',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '6-10m',
-    category: 'Running',
-    rarity: 'Common',
-  },
-  {
-    id: '3',
-    name: 'Black Bamboo',
-    scientificName: 'Phyllostachys nigra',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '4-8m',
-    category: 'Running',
-    rarity: 'Uncommon',
-  },
-  {
-    id: '4',
-    name: 'Buddha Belly',
-    scientificName: 'Bambusa ventricosa',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '3-6m',
-    category: 'Clumping',
-    rarity: 'Uncommon',
-  },
-  {
-    id: '5',
-    name: 'Moso Bamboo',
-    scientificName: 'Phyllostachys edulis',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '15-25m',
-    category: 'Timber',
-    rarity: 'Common',
-  },
-  {
-    id: '6',
-    name: 'Fountain Bamboo',
-    scientificName: 'Fargesia nitida',
-    image: '@/assets/images/bamboo-logo.png',
-    height: '2-4m',
-    category: 'Clumping',
-    rarity: 'Rare',
-  },
-];
+const getStatusBarHeight = () => {
+  if (Platform.OS === 'ios') return 44;
+  return RNStatusBar.currentHeight || 24;
+};
 
 export default function SpeciesScreen() {
   const router = useRouter();
+  const statusBarHeight = getStatusBarHeight();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRarity, setSelectedRarity] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const rarityOptions = ['Common', 'Uncommon'];
+  const categoryOptions = ['Clumping'];
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery && !selectedRarity && !selectedCategory) {
+      return sampleSpeciesData;
+    }
+    const lowerQuery = searchQuery.toLowerCase();
+    return sampleSpeciesData.filter(species => {
+      const matchesSearch =
+        species.name.toLowerCase().includes(lowerQuery) ||
+        species.scientificName.toLowerCase().includes(lowerQuery);
+      const matchesRarity = !selectedRarity || species.rarity === selectedRarity;
+      const matchesCategory = !selectedCategory || species.category === selectedCategory;
+      return matchesSearch && matchesRarity && matchesCategory;
+    });
+  }, [searchQuery, selectedRarity, selectedCategory]);
 
   const handleSpeciesPress = (species: BambooSpecies) => {
-    // Navigate to species detail screen
-    // router.push(`/species/${species.id}`);
-    console.log('Opening species:', species.name);
+    router.push({
+      pathname: '/species/detail',
+      params: { id: species.id }
+    });
   };
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case 'Common': return Colors.success;
       case 'Uncommon': return Colors.warning;
-      case 'Rare': return Colors.error;
       default: return Colors.textSecondary;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Clumping': return '#4169E1';
+      default: return Colors.primary;
     }
   };
 
   const renderSpeciesCard = ({ item, index }: { item: BambooSpecies; index: number }) => (
     <Animated.View
-      entering={FadeIn.delay(index * 100)}
+      entering={FadeIn.delay(index * 50)}
       layout={Layout.springify()}
       style={styles.cardContainer}
     >
-      <TouchableOpacity
-        onPress={() => handleSpeciesPress(item)}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity onPress={() => handleSpeciesPress(item)} activeOpacity={0.8}>
         <Surface style={styles.speciesCard} elevation={2}>
           <View style={styles.imageContainer}>
             <Image
-              source={require('@/assets/images/bamboo-logo.png')}
+              source={item.image}
               style={styles.speciesImage}
               contentFit="cover"
               transition={300}
@@ -125,7 +95,6 @@ export default function SpeciesScreen() {
               </Text>
             </View>
           </View>
-          
           <View style={styles.cardContent}>
             <Text variant="titleSmall" style={styles.speciesName} numberOfLines={1}>
               {item.name}
@@ -133,46 +102,116 @@ export default function SpeciesScreen() {
             <Text variant="bodySmall" style={styles.scientificName} numberOfLines={1}>
               {item.scientificName}
             </Text>
-            
             <View style={styles.speciesInfo}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoIcon}>📏</Text>
                 <Text style={styles.infoText}>{item.height}</Text>
               </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoIcon}>🌍</Text>
+                <Text style={styles.infoText} numberOfLines={1}>{item.origin}</Text>
+              </View>
             </View>
-
-            <Text style={styles.categoryText}>{item.category}</Text>
+            <Text style={[
+              styles.categoryText,
+              {
+                backgroundColor: getCategoryColor(item.category) + '20',
+                borderColor: getCategoryColor(item.category),
+                color: getCategoryColor(item.category)
+              }
+            ]}>
+              {item.category}
+            </Text>
           </View>
         </Surface>
       </TouchableOpacity>
     </Animated.View>
   );
 
-  const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      <Text variant="headlineMedium" style={styles.headerTitle}>
-        Bamboo Species
-      </Text>
-      <Text variant="bodyMedium" style={styles.headerSubtitle}>
-        Explore {sampleSpeciesData.length} species in our database
-      </Text>
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={sampleSpeciesData}
-        renderItem={renderSpeciesCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        ListHeaderComponent={renderHeader}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
-    </View>
+    <>
+      <StatusBar style="dark" />
+      {Platform.OS === 'android' && (
+        <RNStatusBar barStyle="dark-content" translucent={true} />
+      )}
+
+      <View style={styles.container}>
+        {/* Modern sticky top section */}
+        <View style={[styles.topSection, { paddingTop: statusBarHeight + 8 }]}>
+          <Text style={styles.headerTitle}>Bamboo Species</Text>
+          <Text style={styles.headerSubtitle}>
+            Showing {filteredData.length} of {sampleSpeciesData.length} species
+          </Text>
+
+          <TextInput
+            placeholder="Search species..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+            placeholderTextColor={Colors.textSecondary}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={{ paddingRight: 8 }}
+          >
+            {rarityOptions.map(r => (
+              <TouchableOpacity
+                key={r}
+                style={[
+                  styles.filterChip,
+                  selectedRarity === r && styles.filterChipSelected
+                ]}
+                onPress={() => setSelectedRarity(selectedRarity === r ? null : r)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    selectedRarity === r && styles.filterChipTextSelected
+                  ]}
+                >
+                  {r}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {categoryOptions.map(c => (
+              <TouchableOpacity
+                key={c}
+                style={[
+                  styles.filterChip,
+                  selectedCategory === c && styles.filterChipSelected
+                ]}
+                onPress={() => setSelectedCategory(selectedCategory === c ? null : c)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    selectedCategory === c && styles.filterChipTextSelected
+                  ]}
+                >
+                  {c}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <FlatList
+          data={filteredData}
+          renderItem={renderSpeciesCard}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={filteredData.length > 1 ? styles.row : null}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      </View>
+    </>
   );
 }
 
@@ -181,37 +220,82 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  listContent: {
-    paddingBottom: 32,
-  },
-  
-  // Header Styles
-  headerContainer: {
-    padding: 16,
-    paddingBottom: 24,
+  topSection: {
+    backgroundColor: Colors.background,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
     color: Colors.textPrimary,
     fontWeight: '700',
+    fontSize: 22,
     marginBottom: 4,
   },
   headerSubtitle: {
     color: Colors.textSecondary,
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  
-  // Grid Styles
+  searchInput: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 8,
+    fontSize: 14,
+    color: Colors.textPrimary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 10,
+  },
+  filterScroll: {
+    flexGrow: 0,
+  },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginRight: 8,
+    backgroundColor: Colors.surface,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 1,
+      }
+    })
+  },
+  filterChipSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+  },
+  filterChipTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  listContent: {
+    paddingBottom: 32,
+    paddingHorizontal: 16,
+  },
   row: {
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
   },
   separator: {
     height: 16,
   },
-  
-  // Card Styles
   cardContainer: {
     width: itemWidth,
+    marginBottom: 16,
   },
   speciesCard: {
     backgroundColor: Colors.surface,
@@ -239,8 +323,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  
-  // Card Content
   cardContent: {
     padding: 12,
   },
@@ -274,15 +356,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryText: {
-    color: Colors.primary,
     fontSize: 10,
     fontWeight: '600',
-    backgroundColor: Colors.primarySoft,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: Colors.primary,
+    overflow: 'hidden',
   },
 });

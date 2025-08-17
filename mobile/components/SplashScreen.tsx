@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Platform, StatusBar as RNStatusBar } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Animated, {
   useSharedValue,
@@ -101,29 +101,39 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.bambooContainer}>
-        {/* Bamboo segments growing from bottom to top */}
-        <BambooSegment delay={1800} height={40} />
-        <BambooSegment delay={1400} height={45} />
-        <BambooSegment delay={1000} height={50} />
-        <BambooSegment delay={600} height={55} />
-        <BambooSegment delay={200} height={60} />
+    <>
+      {/* Fixed Status Bar Configuration */}
+      <StatusBar style="dark" />
+      {/* Additional native status bar configuration for Android */}
+      {Platform.OS === 'android' && (
+        <RNStatusBar
+          barStyle="dark-content"
+          translucent={true}
+        />
+      )}
+      
+      <View style={styles.container}>
+        <View style={styles.bambooContainer}>
+          {/* Bamboo segments growing from bottom to top */}
+          <BambooSegment delay={1800} height={40} />
+          <BambooSegment delay={1400} height={45} />
+          <BambooSegment delay={1000} height={50} />
+          <BambooSegment delay={600} height={55} />
+          <BambooSegment delay={200} height={60} />
+          
+          {/* Roots at the bottom */}
+          <Animated.View style={[styles.roots, rootStyle]} />
+        </View>
         
-        {/* Roots at the bottom */}
-        <Animated.View style={[styles.roots, rootStyle]} />
+        <Animated.Text style={[styles.loadingText, textAnimatedStyle]}>
+          BambooScope Image Recognition
+        </Animated.Text>
+        
+        <Animated.Text style={[styles.subText, textAnimatedStyle]}>
+          Loading, please wait...
+        </Animated.Text>
       </View>
-      
-      <Animated.Text style={[styles.loadingText, textAnimatedStyle]}>
-        MyBamboo Image Recognition
-      </Animated.Text>
-      
-      <Animated.Text style={[styles.subText, textAnimatedStyle]}>
-        Loading, please wait...
-      </Animated.Text>
-      
-      <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 
