@@ -151,7 +151,8 @@ export default function SpeciesScreen() {
             placeholderTextColor={Colors.textSecondary}
             autoCorrect={false}
             autoCapitalize="none"
-          />
+            maxLength={20}
+          />  
 
           <ScrollView
             horizontal

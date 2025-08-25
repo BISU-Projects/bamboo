@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar as RNStatusBar,
+  Image,
 } from 'react-native';
 import { Text, Surface, Chip } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
@@ -24,26 +25,11 @@ import { Colors } from '@/constants/Colors';
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const sway = useSharedValue(0);
   const fadeIn = useSharedValue(0);
 
   useEffect(() => {
-    sway.value = withRepeat(
-      withTiming(8, {
-        duration: 2000,
-        easing: Easing.inOut(Easing.sin),
-      }),
-      -1,
-      true
-    );
     fadeIn.value = withTiming(1, { duration: 700 });
   }, []);
-
-  const bambooSwayStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotateZ: `${sway.value}deg` }],
-    };
-  });
 
   const fadeInStyle = useAnimatedStyle(() => {
     return {
@@ -81,9 +67,13 @@ export default function HomeScreen() {
             ]}
           >
             <Animated.View style={[styles.logoContainer, fadeInStyle]}>
-              <Animated.View style={bambooSwayStyle}>
-                <Text style={styles.bambooIcon}>🎋</Text>
-              </Animated.View>
+              <View style={styles.bambooImageContainer}>
+                <Image 
+                  source={require('@/assets/images/bamboo-logo.png')} // Update this path to your image
+                  style={styles.bambooImage}
+                  resizeMode="contain"
+                />
+              </View>
               <Text style={styles.appName}>BambooScope</Text>
               <Text style={styles.tagline}>AI-Powered Bamboo Recognition</Text>
               <Chip 
@@ -108,11 +98,11 @@ export default function HomeScreen() {
             <Text style={styles.statNumber}>95%</Text>
             <Text style={styles.statLabel}>Accuracy</Text>
           </View>
-          <View style={styles.statDivider} />
+          {/* <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>1K+</Text>
+            <Text style={styles.statNumber}>Unli</Text>
             <Text style={styles.statLabel}>Scans</Text>
-          </View>
+          </View> */}
         </Animated.View>
 
         {/* Welcome Message */}
@@ -229,10 +219,10 @@ export default function HomeScreen() {
                 <Text style={styles.featureIcon}>🌍</Text>
               </View>
               <Text variant="titleSmall" style={styles.featureTitle}>
-                Global Coverage
+                Philippine Coverage
               </Text>
               <Text variant="bodySmall" style={styles.featureDescription}>
-                Species from around the world
+               Species across the country
               </Text>
             </Surface>
           </View>
@@ -265,9 +255,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bambooIcon: {
-    fontSize: 72,
+  bambooImageContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(121, 246, 144, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  bambooImage: {
+    width: 120,
+    height: 120,
   },
   appName: {
     fontSize: 34,

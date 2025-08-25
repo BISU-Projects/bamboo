@@ -31,8 +31,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
       require('@/assets/images/bayog1.jpg'),
       require('@/assets/images/bayog2.jpg'),
       require('@/assets/images/bayog3.jpg'),
-      require('@/assets/images/bayog4.jpg'),
-      require('@/assets/images/bayog5.jpg')
+      require('@/assets/images/bayog4.jpg')
     ],
     height: 'up to 20 m',
     category: 'Clumping',
@@ -71,8 +70,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
       require('@/assets/images/bolo1.jpg'),
       require('@/assets/images/bolo2.jpg'),
       require('@/assets/images/bolo3.jpg'),
-      require('@/assets/images/bolo4.jpg'),
-      require('@/assets/images/bolo5.jpg')
+      require('@/assets/images/bolo4.jpg')
     ],
     height: '10–12 m',
     category: 'Clumping',
@@ -111,8 +109,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
       require('@/assets/images/gb1.jpg'),
       require('@/assets/images/gb2.jpg'),
       require('@/assets/images/gb3.jpg'),
-      require('@/assets/images/gb4.jpg'),
-      require('@/assets/images/gb5.jpg')
+      require('@/assets/images/gb4.jpg')
     ],
     height: 'up to ~12 m',
     category: 'Clumping',
@@ -145,12 +142,10 @@ export const sampleSpeciesData: BambooSpecies[] = [
     scientificName: 'Guadua angustifolia',
     image: require('@/assets/images/iron_bamboo.jpg'),
     gallery: [
-      require('@/assets/images/iron_bamboo.jpg'),
       require('@/assets/images/ib1.jpg'),
       require('@/assets/images/ib2.jpg'),
       require('@/assets/images/ib3.jpg'),
-      require('@/assets/images/ib4.jpg'),
-      require('@/assets/images/ib5.jpg')
+      require('@/assets/images/ib4.jpg')
     ],
     height: 'up to ~30 m',
     category: 'Running',
@@ -187,8 +182,7 @@ export const sampleSpeciesData: BambooSpecies[] = [
       require('@/assets/images/kt1.jpg'),
       require('@/assets/images/kt2.jpg'),
       require('@/assets/images/kt3.jpg'),
-      require('@/assets/images/kt4.jpg'),
-      require('@/assets/images/kt5.jpg')
+      require('@/assets/images/kt4.jpg')
     ],
     height: '15–25 m',
     category: 'Clumping',
