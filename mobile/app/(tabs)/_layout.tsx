@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Platform, Text } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 import { HapticTab } from '@/components/HapticTab';
@@ -66,15 +65,13 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "home-circle" : "home-circle-outline"} 
-              size={focused ? 26 : 24} 
-              color={color}
-              style={{
-                transform: [{ scale: focused ? 1.1 : 1 }],
-                opacity: focused ? 1 : 0.8,
-              }}
-            />
+            <Text style={{
+              fontSize: 24,
+              color: color,
+              opacity: focused ? 1 : 0.8,
+            }}>
+              🏠
+            </Text>
           ),
           tabBarAccessibilityLabel: 'Home tab',
           tabBarButtonTestID: 'home-tab',
@@ -86,15 +83,13 @@ export default function TabLayout() {
         options={{
           title: 'Camera',
           tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "camera" : "camera-outline"} 
-              size={focused ? 26 : 24} 
-              color={color}
-              style={{
-                transform: [{ scale: focused ? 1.1 : 1 }],
-                opacity: focused ? 1 : 0.8,
-              }}
-            />
+            <Text style={{
+              fontSize: 24,
+              color: color,
+              opacity: focused ? 1 : 0.8,
+            }}>
+              📸
+            </Text>
           ),
           tabBarAccessibilityLabel: 'Camera recognition tab',
           tabBarButtonTestID: 'camera-tab',
@@ -106,15 +101,13 @@ export default function TabLayout() {
         options={{
           title: 'Species',
           tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons 
-              name={focused ? "leaf-circle" : "leaf-circle-outline"} 
-              size={focused ? 26 : 24} 
-              color={color}
-              style={{
-                transform: [{ scale: focused ? 1.1 : 1 }],
-                opacity: focused ? 1 : 0.8,
-              }}
-            />
+            <Text style={{
+              fontSize: 24,
+              color: color,
+              opacity: focused ? 1 : 0.8,
+            }}>
+              🌿
+            </Text>
           ),
           tabBarAccessibilityLabel: 'Species information tab',
           tabBarButtonTestID: 'species-tab',
