@@ -17,7 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "come.chaos23.bambooscope"
+      "package": "come.qweewq.bambooscope"
     },
     "web": {
       "bundler": "metro",
@@ -42,9 +42,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c1672c0c-6a85-4a98-9668-cb8d2036fb0f"
+        "projectId": "d55c05d3-0524-4e40-907d-5a8c858a8500"
       }
     },
-    "owner": "chaos23"
+    "owner": "qweewq"
   }
 }
