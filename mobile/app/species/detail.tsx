@@ -27,6 +27,7 @@ import Animated, {
   SlideInUp,
   runOnJS,
 } from 'react-native-reanimated';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { Colors } from '@/constants/Colors';
 import { getSpeciesById, BambooSpecies } from '@/data/species';
 
@@ -45,6 +46,95 @@ const getStatusBarHeight = () => {
   } else {
     return RNStatusBar.currentHeight || 24;
   }
+};
+
+// Location Map Component
+interface LocationMapProps {
+  locations?: {
+    name: string;
+    latitude: number;
+    longitude: number;
+    description?: string;
+  }[];
+  speciesName: string;
+}
+
+const LocationMap = ({ locations, speciesName }: LocationMapProps) => {
+  if (!locations || locations.length === 0) {
+    return (
+      <View style={styles.noLocationContainer}>
+        <MaterialCommunityIcons name="map-marker-off" size={48} color={Colors.textSecondary} />
+        <Text style={styles.noLocationText}>
+          No specific location data available for this species yet.
+        </Text>
+      </View>
+    );
+  }
+
+  // Calculate center of all locations for initial region
+  const centerLatitude = locations.reduce((sum, loc) => sum + loc.latitude, 0) / locations.length;
+  const centerLongitude = locations.reduce((sum, loc) => sum + loc.longitude, 0) / locations.length;
+
+  // Calculate delta to show all markers
+  const latitudes = locations.map(loc => loc.latitude);
+  const longitudes = locations.map(loc => loc.longitude);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLng = Math.min(...longitudes);
+  const maxLng = Math.max(...longitudes);
+  
+  const latDelta = (maxLat - minLat) * 1.5 || 0.5;
+  const lngDelta = (maxLng - minLng) * 1.5 || 0.5;
+
+  const initialRegion: Region = {
+    latitude: centerLatitude,
+    longitude: centerLongitude,
+    latitudeDelta: Math.max(latDelta, 0.3),
+    longitudeDelta: Math.max(lngDelta, 0.3),
+  };
+
+  return (
+    <View style={styles.mapSection}>
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        initialRegion={initialRegion}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
+        showsCompass={true}
+        showsScale={true}
+      >
+        {locations.map((location, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            title={location.name}
+            description={location.description || `${speciesName} location`}
+            pinColor={Colors.primary}
+          />
+        ))}
+      </MapView>
+
+      {/* Location List */}
+      <View style={styles.locationListContainer}>
+        <Text style={styles.locationListTitle}>Known Locations in Bohol:</Text>
+        {locations.map((location, index) => (
+          <View key={index} style={styles.locationItem}>
+            <MaterialCommunityIcons name="map-marker" size={20} color={Colors.primary} />
+            <View style={styles.locationInfo}>
+              <Text style={styles.locationName}>{location.name}</Text>
+              {location.description && (
+                <Text style={styles.locationDescription}>{location.description}</Text>
+              )}
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 };
 
 // Expandable Carousel Gallery Component
@@ -251,8 +341,6 @@ const ExpandableCarouselGallery = ({
   );
 };
 
-
-
 export default function SpeciesDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -297,7 +385,6 @@ export default function SpeciesDetailScreen() {
   });
 
   const handleGalleryImagePress = (index: number) => {
-    // Optional: Add any navigation or action you want when images are pressed
     console.log('Image pressed:', index);
   };
 
@@ -322,7 +409,6 @@ export default function SpeciesDetailScreen() {
 
   return (
     <>
-      {/* Hide the header using Stack.Screen options */}
       <Stack.Screen 
         options={{ 
           headerShown: false 
@@ -362,7 +448,6 @@ export default function SpeciesDetailScreen() {
               />
             </Animated.View>
             
-            {/* Back Button */}
             <TouchableOpacity 
               style={styles.backButton}
               onPress={() => router.back()}
@@ -370,7 +455,6 @@ export default function SpeciesDetailScreen() {
               <MaterialCommunityIcons name="arrow-left" size={24} color="white" />
             </TouchableOpacity>
             
-            {/* Image Content */}
             <Animated.View style={[styles.imageContent, headerAnimatedStyle]}>
               <View style={styles.badgeContainer}>
                 <Chip
@@ -414,6 +498,14 @@ export default function SpeciesDetailScreen() {
                   images={species.gallery}
                   onImagePress={handleGalleryImagePress}
                 />
+              </Animated.View>
+
+              <Divider style={styles.divider} />
+
+              {/* Location Map Section */}
+              <Animated.View entering={FadeIn.delay(375)} style={styles.section}>
+                <Text style={styles.sectionTitle}>Location in Bohol</Text>
+                <LocationMap locations={species.locations} speciesName={species.name} />
               </Animated.View>
 
               <Divider style={styles.divider} />
@@ -504,7 +596,6 @@ export default function SpeciesDetailScreen() {
                 </View>
               </Animated.View>
 
-              {/* Bottom Spacing */}
               <View style={styles.bottomSpacing} />
             </Surface>
           </Animated.View>
@@ -519,16 +610,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-
-  // Scroll View
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
   },
-
-  // Hero Image Section
   imageContainer: {
     height: HEADER_HEIGHT,
     position: 'relative',
@@ -547,8 +634,6 @@ const styles = StyleSheet.create({
     right: 0,
     height: '60%',
   },
-  
-  // Back Button
   backButton: {
     position: 'absolute',
     top: getStatusBarHeight() + 10,
@@ -561,7 +646,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
   },
-  
   imageContent: {
     position: 'absolute',
     bottom: 0,
@@ -608,8 +692,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
-
-  // Content Container
   contentContainer: {
     flex: 1,
   },
@@ -620,8 +702,6 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     minHeight: height - HEADER_HEIGHT + CONTENT_OVERLAP + 100,
   },
-
-  // Sections
   section: {
     paddingHorizontal: 24,
     marginBottom: 24,
@@ -637,15 +717,11 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: Colors.textSecondary,
   },
-  
-  // Dividers
   divider: {
     marginHorizontal: 24,
     marginBottom: 24,
     backgroundColor: Colors.border,
   },
-
-  // Expandable Carousel Gallery Styles
   galleryContainer: {
     marginBottom: 8,
     overflow: 'hidden',
@@ -753,8 +829,64 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     width: 24,
   },
-
-  // Growing Conditions
+  // Location Map Styles
+  mapSection: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: Colors.backgroundSecondary,
+  },
+  map: {
+    width: '100%',
+    height: 250,
+    borderRadius: 12,
+  },
+  locationListContainer: {
+    padding: 16,
+    backgroundColor: Colors.surface,
+  },
+  locationListTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 12,
+  },
+  locationItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  locationInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  locationName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  locationDescription: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+  },
+  noLocationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    backgroundColor: Colors.backgroundSecondary,
+    borderRadius: 12,
+  },
+  noLocationText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 20,
+  },
   conditionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -781,8 +913,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-
-  // Characteristics
   characteristicsList: {
     gap: 12,
   },
@@ -804,8 +934,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: Colors.textSecondary,
   },
-
-  // Uses
   usesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -820,15 +948,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-
-  // Care Instructions
   careText: {
     fontSize: 15,
     lineHeight: 22,
     color: Colors.textSecondary,
   },
-
-  // Additional Info
   additionalInfo: {
     gap: 12,
   },
@@ -850,7 +974,6 @@ const styles = StyleSheet.create({
     flex: 2,
     textAlign: 'right',
   },
-
   bottomSpacing: {
     height: 100,
   },

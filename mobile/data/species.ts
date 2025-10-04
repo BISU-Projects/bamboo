@@ -3,8 +3,8 @@ export interface BambooSpecies {
   id: string;
   name: string;
   scientificName: string;
-  image: string; // Main hero image
-  gallery: string[]; // Array of gallery images (5 images)
+  image: string;
+  gallery: string[];
   height: string;
   category: 'Clumping' | 'Running' | 'Dwarf' | 'Timber';
   rarity: 'Common' | 'Uncommon' | 'Rare';
@@ -19,6 +19,13 @@ export interface BambooSpecies {
   careInstructions: string;
   bloomingPeriod?: string;
   propagation: string;
+  // Location data for Bohol
+  locations?: {
+    name: string;
+    latitude: number;
+    longitude: number;
+    description?: string;
+  }[];
 }
 
 export const sampleSpeciesData: BambooSpecies[] = [
@@ -59,7 +66,27 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Best planted in well-drained, fertile soil with access to consistent moisture (ideal near riparian zones). Sun to partial shade. Propagate via culm cuttings; nursery-raised plants produce viable culms in ~3 years, with full clump maturity in ~7 years.',
     bloomingPeriod: 'Not well documented—rare or long bloom cycles typical of bamboos',
-    propagation: 'Culm cuttings (high survival); nursery-raised and outplanted'
+    propagation: 'Culm cuttings (high survival); nursery-raised and outplanted',
+    locations: [
+      {
+        name: 'Loboc River Area',
+        latitude: 9.6356,
+        longitude: 124.0331,
+        description: 'Common along riverbanks'
+      },
+      {
+        name: 'Bilar Man-Made Forest',
+        latitude: 9.6889,
+        longitude: 124.0844,
+        description: 'Found in riparian zones'
+      },
+      {
+        name: 'Carmen Uplands',
+        latitude: 9.8167,
+        longitude: 124.0333,
+        description: 'Highland plantations'
+      }
+    ]
   },
   {
     id: '2',
@@ -98,7 +125,27 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Propagate via culm or rhizome cuttings; plant in fertile, well-drained soil under full to partial sunlight. Maintain consistent moisture but avoid waterlogging. Growth is vigorous in tropical conditions.',
     bloomingPeriod: 'Flowering cycle unknown—likely long or gregarious like most bamboos',
-    propagation: 'Culm cuttings and rhizome cuttings (commonly used)'
+    propagation: 'Culm cuttings and rhizome cuttings (commonly used)',
+    locations: [
+      {
+        name: 'Tagbilaran City Outskirts',
+        latitude: 9.6478,
+        longitude: 123.8494,
+        description: 'Rural construction areas'
+      },
+      {
+        name: 'Panglao Island',
+        latitude: 9.5833,
+        longitude: 123.7500,
+        description: 'Coastal bamboo groves'
+      },
+      {
+        name: 'Baclayon Area',
+        latitude: 9.6167,
+        longitude: 123.9167,
+        description: 'Traditional farming zones'
+      }
+    ]
   },
   {
     id: '3',
@@ -134,7 +181,21 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Plant in fertile, well-drained soil with regular moisture. Thrives under full sun to partial shade. Being clumping, it is manageable and stays neat—ideal for ornamental borders.',
     bloomingPeriod: 'Not documented; flowering cycles typically long and infrequent.',
-    propagation: 'Division when clump reaches ~10 culms, splitting into ~5-culm offsets for transplanting.'
+    propagation: 'Division when clump reaches ~10 culms, splitting into ~5-culm offsets for transplanting.',
+    locations: [
+      {
+        name: 'Bohol Bee Farm',
+        latitude: 9.5897,
+        longitude: 123.7894,
+        description: 'Ornamental gardens'
+      },
+      {
+        name: 'Alona Beach Resorts',
+        latitude: 9.5500,
+        longitude: 123.7833,
+        description: 'Resort landscaping'
+      }
+    ]
   },
   {
     id: '4',
@@ -171,7 +232,21 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Plant in fertile, well-drained soils with abundant moisture. Prefers full to partial sun and tropical humidity. Being a running species, it should be managed to contain spread—regular harvesting and rhizome control advised.',
     bloomingPeriod: 'Not well documented; likely very infrequent flowering cycles',
-    propagation: 'Culm cuttings and rhizome propagation—widely introduced as priority species in Philippine bamboo nurseries'
+    propagation: 'Culm cuttings and rhizome propagation—widely introduced as priority species in Philippine bamboo nurseries',
+    locations: [
+      {
+        name: 'Sierra Bullones Nursery',
+        latitude: 9.7833,
+        longitude: 124.2667,
+        description: 'Government bamboo nursery'
+      },
+      {
+        name: 'Valencia Experimental Farm',
+        latitude: 9.6167,
+        longitude: 124.1833,
+        description: 'Research and propagation site'
+      }
+    ]
   },
   {
     id: '5',
@@ -211,26 +286,43 @@ export const sampleSpeciesData: BambooSpecies[] = [
     ],
     careInstructions: 'Plant in well-drained soil, ideally sandy or loamy. Apply regular crop management—cleaning, thinning, mulching, fertilization—for sustained yield.',
     bloomingPeriod: 'Not well documented; bamboo flowering cycles are typically long and infrequent.',
-    propagation: 'One-node culm cuttings; PSAU reports ~64 % survival via two-node branch cuttings; treat clumps regularly via sanitation and cultural care.'
+    propagation: 'One-node culm cuttings; PSAU reports ~64 % survival via two-node branch cuttings; treat clumps regularly via sanitation and cultural care.',
+    locations: [
+      {
+        name: 'Chocolate Hills Complex',
+        latitude: 9.7967,
+        longitude: 124.1694,
+        description: 'Erosion control plantings'
+      },
+      {
+        name: 'Danao Adventure Park',
+        latitude: 9.9167,
+        longitude: 124.1000,
+        description: 'Natural barriers and construction material'
+      },
+      {
+        name: 'Anda Coastal Area',
+        latitude: 9.7333,
+        longitude: 124.5667,
+        description: 'Coastal windbreaks'
+      }
+    ]
   }
 ];
 
-// Helper function to get species by ID
+// ... (keep all the existing helper functions)
 export const getSpeciesById = (id: string): BambooSpecies | undefined => {
   return sampleSpeciesData.find(species => species.id === id);
 };
 
-// Helper function to get species by category
 export const getSpeciesByCategory = (category: string): BambooSpecies[] => {
   return sampleSpeciesData.filter(species => species.category === category);
 };
 
-// Helper function to get species by rarity
 export const getSpeciesByRarity = (rarity: string): BambooSpecies[] => {
   return sampleSpeciesData.filter(species => species.rarity === rarity);
 };
 
-// Helper function for search
 export const searchSpecies = (query: string): BambooSpecies[] => {
   const lowercaseQuery = query.toLowerCase();
   return sampleSpeciesData.filter(species => 
@@ -241,25 +333,21 @@ export const searchSpecies = (query: string): BambooSpecies[] => {
   );
 };
 
-// Helper function to get all unique categories
 export const getAllCategories = (): string[] => {
   const categories = sampleSpeciesData.map(species => species.category);
   return [...new Set(categories)].sort();
 };
 
-// Helper function to get all unique rarities
 export const getAllRarities = (): string[] => {
   const rarities = sampleSpeciesData.map(species => species.rarity);
   return [...new Set(rarities)].sort();
 };
 
-// Helper function to get all unique origins
 export const getAllOrigins = (): string[] => {
   const origins = sampleSpeciesData.map(species => species.origin);
   return [...new Set(origins)].sort();
 };
 
-// Helper function to get species count by category
 export const getSpeciesCountByCategory = () => {
   const counts: { [key: string]: number } = {};
   sampleSpeciesData.forEach(species => {
@@ -268,7 +356,6 @@ export const getSpeciesCountByCategory = () => {
   return counts;
 };
 
-// Helper function to get species count by rarity
 export const getSpeciesCountByRarity = () => {
   const counts: { [key: string]: number } = {};
   sampleSpeciesData.forEach(species => {
@@ -277,13 +364,11 @@ export const getSpeciesCountByRarity = () => {
   return counts;
 };
 
-// Helper function to get random species (for featured/recommended sections)
 export const getRandomSpecies = (count: number = 3): BambooSpecies[] => {
   const shuffled = [...sampleSpeciesData].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 };
 
-// Helper function to get species by multiple filters
 export const getFilteredSpecies = (filters: {
   category?: string;
   rarity?: string;
