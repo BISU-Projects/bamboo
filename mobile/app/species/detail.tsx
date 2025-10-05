@@ -27,7 +27,7 @@ import Animated, {
   SlideInUp,
   runOnJS,
 } from 'react-native-reanimated';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { Marker, Region } from 'react-native-maps';
 import { Colors } from '@/constants/Colors';
 import { getSpeciesById, BambooSpecies } from '@/data/species';
 
@@ -96,7 +96,6 @@ const LocationMap = ({ locations, speciesName }: LocationMapProps) => {
   return (
     <View style={styles.mapSection}>
       <MapView
-        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation={false}
