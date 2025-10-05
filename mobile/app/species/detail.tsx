@@ -27,9 +27,9 @@ import Animated, {
   SlideInUp,
   runOnJS,
 } from 'react-native-reanimated';
-import MapView, { Marker, Region, PROVIDER_DEFAULT } from 'react-native-maps';
 import { Colors } from '@/constants/Colors';
 import { getSpeciesById, BambooSpecies } from '@/data/species';
+import LocationMap from '@/components/LocationMap'; // Import the new component
 
 const { width, height } = Dimensions.get('window');
 const HEADER_HEIGHT = 300;
@@ -46,95 +46,6 @@ const getStatusBarHeight = () => {
   } else {
     return RNStatusBar.currentHeight || 24;
   }
-};
-
-// Location Map Component
-interface LocationMapProps {
-  locations?: {
-    name: string;
-    latitude: number;
-    longitude: number;
-    description?: string;
-  }[];
-  speciesName: string;
-}
-
-const LocationMap = ({ locations, speciesName }: LocationMapProps) => {
-  if (!locations || locations.length === 0) {
-    return (
-      <View style={styles.noLocationContainer}>
-        <MaterialCommunityIcons name="map-marker-off" size={48} color={Colors.textSecondary} />
-        <Text style={styles.noLocationText}>
-          No specific location data available for this species yet.
-        </Text>
-      </View>
-    );
-  }
-
-  // Calculate center of all locations for initial region
-  const centerLatitude = locations.reduce((sum, loc) => sum + loc.latitude, 0) / locations.length;
-  const centerLongitude = locations.reduce((sum, loc) => sum + loc.longitude, 0) / locations.length;
-
-  // Calculate delta to show all markers
-  const latitudes = locations.map(loc => loc.latitude);
-  const longitudes = locations.map(loc => loc.longitude);
-  const minLat = Math.min(...latitudes);
-  const maxLat = Math.max(...latitudes);
-  const minLng = Math.min(...longitudes);
-  const maxLng = Math.max(...longitudes);
-  
-  const latDelta = (maxLat - minLat) * 1.5 || 0.5;
-  const lngDelta = (maxLng - minLng) * 1.5 || 0.5;
-
-  const initialRegion: Region = {
-    latitude: centerLatitude,
-    longitude: centerLongitude,
-    latitudeDelta: Math.max(latDelta, 0.3),
-    longitudeDelta: Math.max(lngDelta, 0.3),
-  };
-
-  return (
-    <View style={styles.mapSection}>
-      <MapView
-        style={styles.map}
-        initialRegion={initialRegion}
-        provider={PROVIDER_DEFAULT}
-        showsUserLocation={false}
-        showsMyLocationButton={false}
-        showsCompass={true}
-        showsScale={true}
-      >
-        {locations.map((location, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            title={location.name}
-            description={location.description || `${speciesName} location`}
-            pinColor={Colors.primary}
-          />
-        ))}
-      </MapView>
-
-      {/* Location List */}
-      <View style={styles.locationListContainer}>
-        <Text style={styles.locationListTitle}>Known Locations in Bohol:</Text>
-        {locations.map((location, index) => (
-          <View key={index} style={styles.locationItem}>
-            <MaterialCommunityIcons name="map-marker" size={20} color={Colors.primary} />
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationName}>{location.name}</Text>
-              {location.description && (
-                <Text style={styles.locationDescription}>{location.description}</Text>
-              )}
-            </View>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
 };
 
 // Expandable Carousel Gallery Component
@@ -828,63 +739,6 @@ const styles = StyleSheet.create({
   indicatorActive: {
     backgroundColor: Colors.primary,
     width: 24,
-  },
-  mapSection: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: Colors.backgroundSecondary,
-  },
-  map: {
-    width: '100%',
-    height: 250,
-    borderRadius: 12,
-  },
-  locationListContainer: {
-    padding: 16,
-    backgroundColor: Colors.surface,
-  },
-  locationListTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-    marginBottom: 12,
-  },
-  locationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  locationInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  locationName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-    marginBottom: 4,
-  },
-  locationDescription: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
-  },
-  noLocationContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: 12,
-  },
-  noLocationText: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 20,
   },
   conditionsGrid: {
     flexDirection: 'row',
