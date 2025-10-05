@@ -27,7 +27,7 @@ import Animated, {
   SlideInUp,
   runOnJS,
 } from 'react-native-reanimated';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Marker, Region, PROVIDER_DEFAULT } from 'react-native-maps';
 import { Colors } from '@/constants/Colors';
 import { getSpeciesById, BambooSpecies } from '@/data/species';
 
@@ -98,6 +98,7 @@ const LocationMap = ({ locations, speciesName }: LocationMapProps) => {
       <MapView
         style={styles.map}
         initialRegion={initialRegion}
+        provider={PROVIDER_DEFAULT}
         showsUserLocation={false}
         showsMyLocationButton={false}
         showsCompass={true}
@@ -828,7 +829,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     width: 24,
   },
-  // Location Map Styles
   mapSection: {
     borderRadius: 12,
     overflow: 'hidden',
