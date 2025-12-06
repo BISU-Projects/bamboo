@@ -1,17 +1,17 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform, Text } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/Colors';
-
-import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Tabs } from "expo-router";
+import React from "react";
+import { Platform, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "@/constants/Colors";
+import { HapticTab } from "@/components/HapticTab";
+import TabBarBackground from "@/components/ui/TabBarBackground";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
@@ -20,30 +20,30 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            position: 'absolute',
-            backgroundColor: 'white',
+            position: "absolute",
+            backgroundColor: "white",
             borderTopWidth: 0,
             height: 80 + insets.bottom,
             paddingBottom: insets.bottom,
-            shadowColor: '#000',
+            shadowColor: "#000",
             shadowOffset: { width: 0, height: -2 },
             shadowOpacity: 0.1,
             shadowRadius: 8,
             elevation: 8,
           },
           android: {
-            backgroundColor: 'white',
+            backgroundColor: "white",
             borderTopWidth: 0,
             height: 70 + insets.bottom,
             paddingBottom: insets.bottom,
-            shadowColor: '#000',
+            shadowColor: "#000",
             shadowOffset: { width: 0, height: -2 },
             shadowOpacity: 0.15,
             shadowRadius: 8,
             elevation: 12,
           },
           default: {
-            backgroundColor: 'white',
+            backgroundColor: "white",
             height: 65 + insets.bottom,
             paddingBottom: insets.bottom,
           },
@@ -55,66 +55,90 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: "600",
           marginTop: 4,
           letterSpacing: 0.5,
         },
-        tabBarIconStyle: {
-          marginBottom: -2,
-        },
+        tabBarIconStyle: { marginBottom: -2 },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{
-              fontSize: 24,
-              color: color,
-              opacity: focused ? 1 : 0.8,
-            }}>
+            <Text
+              style={{
+                fontSize: 24,
+                color: color,
+                opacity: focused ? 1 : 0.8,
+              }}
+            >
               🏠
             </Text>
           ),
-          tabBarAccessibilityLabel: 'Home tab',
-          tabBarButtonTestID: 'home-tab',
+          tabBarAccessibilityLabel: "Home tab",
+          tabBarButtonTestID: "home-tab",
         }}
       />
-      
+
       <Tabs.Screen
         name="recognition"
         options={{
-          title: 'Camera',
+          title: "Camera",
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{
-              fontSize: 24,
-              color: color,
-              opacity: focused ? 1 : 0.8,
-            }}>
+            <Text
+              style={{
+                fontSize: 24,
+                color: color,
+                opacity: focused ? 1 : 0.8,
+              }}
+            >
               📸
             </Text>
           ),
-          tabBarAccessibilityLabel: 'Camera recognition tab',
-          tabBarButtonTestID: 'camera-tab',
+          tabBarAccessibilityLabel: "Camera recognition tab",
+          tabBarButtonTestID: "camera-tab",
         }}
       />
-      
+
       <Tabs.Screen
         name="species"
         options={{
-          title: 'Species',
+          title: "Species",
           tabBarIcon: ({ color, focused }) => (
-            <Text style={{
-              fontSize: 24,
-              color: color,
-              opacity: focused ? 1 : 0.8,
-            }}>
+            <Text
+              style={{
+                fontSize: 24,
+                color: color,
+                opacity: focused ? 1 : 0.8,
+              }}
+            >
               🌿
             </Text>
           ),
-          tabBarAccessibilityLabel: 'Species information tab',
-          tabBarButtonTestID: 'species-tab',
+          tabBarAccessibilityLabel: "Species information tab",
+          tabBarButtonTestID: "species-tab",
+        }}
+      />
+
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: "About",
+          tabBarIcon: ({ color, focused }) => (
+            <Text
+              style={{
+                fontSize: 24,
+                color: color,
+                opacity: focused ? 1 : 0.8,
+              }}
+            >
+              ℹ️
+            </Text>
+          ),
+          tabBarAccessibilityLabel: "About and user manual tab",
+          tabBarButtonTestID: "about-tab",
         }}
       />
     </Tabs>

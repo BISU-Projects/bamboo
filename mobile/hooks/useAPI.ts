@@ -19,7 +19,7 @@ interface UseApiReturn {
   clearResult: () => void;
 }
 
-const API_ENDPOINT = "https://bamboo-6xoh.onrender.com/predict";
+const API_ENDPOINT = "https://bamboo-6xoh-d9gb.onrender.com/predict";
 
 export const useApi = (): UseApiReturn => {
   const [result, setResult] = useState<PredictionResult | null>(null);
